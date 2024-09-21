@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="C:\Users\werne\.nuget\packages\hexmapbase\0.0.1\contentFiles\any\net6.0\icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HexMapBase" Version="0.1.3" />
+  </ItemGroup>
+
+</Project>
