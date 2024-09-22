@@ -7,6 +7,19 @@ namespace HexMapGenerator.Tests;
 
 public class UtilsTests
 {
+    private List<int> exampleMapEasy = new() {
+        2, 2, 2, 2, 2, 2, 2, 2, 
+        2, 3, 4, 4, 3, 3, 3, 2, 
+        2, 3, 4, 13, 4, 3, 3, 2, 
+        2, 3, 4, 4, 3, 3, 3, 2, 
+        2, 3, 3, 3, 3, 3, 3, 2, 
+        2, 3, 3, 3, 3, 3, 3, 2, 
+        2, 3, 3, 3, 3, 3, 3, 2, 
+        2, 2, 2, 2, 2, 2, 2, 2,
+    };
+    private CubeCoordinates mountainCoordinateEasy = new CubeCoordinates(2, 2, -4);
+
+
     [Fact]
     public void TestConvertMapSize()
     {
@@ -48,6 +61,27 @@ public class UtilsTests
     }
 
     [Fact]
+    public void TestIsTileAtEdge()
+    {
+        var grid = Enumerable.Repeat(new Tile(), 9).ToList();
+        Utils.InitializeHexGrid(grid, 3, 3, TerrainType.PLAIN);
+        Assert.True(Utils.IsTileAtEdge(grid, 3, 3, grid[0], 1));
+        Assert.False(Utils.IsTileAtEdge(grid, 3, 3, grid[4], 1));
+    }
+
+    [Fact]
+    public void TestFindNearestTile()
+    {
+        var grid = Enumerable.Repeat(new Tile(), 9).ToList();
+        Utils.InitializeHexGrid(grid, 3, 3, TerrainType.PLAIN);
+        grid[0].terrain = TerrainType.SHALLOW_WATER;
+        var data = Utils.FindNearestTile(grid, 3, 3, new CubeCoordinates(0, 2, -2), 3, TerrainType.SHALLOW_WATER);
+        Assert.True(data.distance > 0);
+        Assert.NotNull(data.destinationTile);
+        Assert.True(data.destinationTile.coordinates == new CubeCoordinates(0, 0, 0));
+    }
+
+    [Fact]
     public void TestInitializeHexGrid()
     {
         var grid = Enumerable.Repeat(new Tile(), 9).ToList();
@@ -82,4 +116,38 @@ public class UtilsTests
         Assert.Equal(6, neighbors.Count);
     }
 
+    [Fact]
+    public void TestCreateRiverPath()
+    {
+        int mapSize = 8;
+        var grid = Enumerable.Repeat(new Tile(), mapSize * mapSize).ToList();
+        Utils.InitializeExampleHexGrid(grid, mapSize, mapSize, exampleMapEasy);
+        var mountain = new Mountain() { coordinates = mountainCoordinateEasy };
+        int distanceToWater = Utils.FindNearestTile(grid, mapSize, mapSize, mountain.coordinates, mapSize, TerrainType.SHALLOW_WATER).distance;
+        Assert.True(distanceToWater > 0);
+        var path = Utils.CreateRiverPath(grid, mapSize, mapSize, mountain, distanceToWater);
+        Assert.True(path.Count > 0);
+    }
+
+    [Fact]
+    public void TestFindComminTile()
+    {
+        List<Tile> array1 = new() { new Tile() { coordinates = new CubeCoordinates(0, 0, 0) },
+                                    new Tile() { coordinates = new CubeCoordinates(1, 0,-1) },
+                                    new Tile() { coordinates = new CubeCoordinates(0, 1,-1) },
+                                    new Tile() { coordinates = new CubeCoordinates(1, 1,-2) } };
+        List<Tile> array2 = new() { new Tile() { coordinates = new CubeCoordinates(0, 0, 0) },
+                                    new Tile() { coordinates = new CubeCoordinates(1, 0,-1) },
+                                    new Tile() { coordinates = new CubeCoordinates(2, 0,-2) }};
+        List<Tile> array3 = new() { new Tile() { coordinates = new CubeCoordinates(0, 0, 0) },
+                                    new Tile() { coordinates = new CubeCoordinates(0, 1,-1) },
+                                    new Tile() { coordinates = new CubeCoordinates(-1, 2,-1) },
+                                    new Tile() { coordinates = new CubeCoordinates(-1, 3,-2) }};
+        var common = Utils.FindCommonTiles(new List<List<Tile>> { array1, array2 });
+        Assert.Equal(2, common.Count);
+        common = Utils.FindCommonTiles(new List<List<Tile>> { array1, array3 });
+        Assert.Equal(2, common.Count);
+        common = Utils.FindCommonTiles(new List<List<Tile>> { array1, array2, array3 });
+        Assert.Equal(2, common.Count);
+    }
 }

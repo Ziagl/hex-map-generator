@@ -1,8 +1,9 @@
 ﻿using HexMapGenerator.enums;
+using HexMapGenerator.models;
 
 namespace HexMapGenerator.interfaces;
 
 internal interface IMapLandscapeShaper
 {
-    (List<int> terrain, List<int> landscape, List<int> river, Dictionary<string, string> riverTileDirections) Generate(int[][] map, float factorRiver, int riverBed);
+    void Generate(MapData data, MapTemperature temperature, MapHumidity humidity, float factorRiver, int riverBed);
 }

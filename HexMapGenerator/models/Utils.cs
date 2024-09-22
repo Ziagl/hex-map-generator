@@ -81,6 +81,29 @@ internal class Utils
         return tiles;
     }
 
+    // checks if tile is at least distance tiles away from edge of grid
+    public static bool IsTileAtEdge(List<Tile> grid, int rows, int columns, Tile tile, int distance)
+    {
+        // first compute expected number of elements for given distance
+        int totalElements = 1;
+        for(int i = 1; i <= distance; ++i)
+        {
+            totalElements += i * 6;
+        }
+        // compute spiral and compare with total elements
+        var spiral = tile.coordinates.SpiralAroundInward(distance, Direction.W);
+        int counter = 0;
+        foreach(var coordinate in spiral)
+        {
+            var coord = coordinate.ToOffset();
+            if (coord.x >= 0 && coord.x < columns && coord.y >= 0 && coord.y < rows)
+            {
+                ++counter;
+            }
+        }
+        return counter != totalElements;
+    }
+
     // initialize a grid and each tile with given type and coordinates
     internal static void InitializeHexGrid(List<Tile> grid, int rows, int columns, TerrainType type)
     {
@@ -97,6 +120,23 @@ internal class Utils
         }
     }
 
+    // initialize a grid and each tile with given type and coordinates
+    internal static void InitializeExampleHexGrid(List<Tile> grid, int rows, int columns, List<int> map)
+    {
+        for (int column = 0; column < columns; ++column)
+        {
+            for (int row = 0; row < rows; ++row)
+            {
+                int index = row * columns + column;
+                grid[index] = new Tile
+                {
+                    coordinates = new OffsetCoordinates(column, row).ToCubic(),
+                    terrain = (TerrainType)map[index],
+                };
+            }
+        }
+    }
+
     // returns a random tile of given grid
     internal static Tile RandomTile(List<Tile> grid, int rows, int columns)
     {
@@ -104,6 +144,34 @@ internal class Utils
         int row = random.Next(0, rows);
         int column = random.Next(0, columns);
         return grid[row * columns + column];
+    }
+
+    // finds nearest tile of given type or undefined if it not found
+    internal static (Tile? destinationTile, int distance) FindNearestTile(List<Tile> grid, int rows, int columns, CubeCoordinates coordinates, int maxRadius, TerrainType type)
+    {
+        int distance = 0;
+        int radius = 1;
+        Tile? destinationTile = null;
+        do
+        {
+            var tileCoordinates = coordinates.RingAround(radius, Direction.W);
+            foreach (var tileCoordinate in tileCoordinates)
+            {
+                var coord = tileCoordinate.ToOffset();
+                if (coord.x >= 0 && coord.x < columns && coord.y >= 0 && coord.y < rows)
+                {
+                    var tile = grid[coord.y * columns + coord.x];
+                    if (tile.terrain == type)
+                    {
+                        distance = radius;
+                        destinationTile = tile;
+                        break;
+                    }
+                }
+            }
+            ++radius;
+        } while (radius <= maxRadius && distance == 0);
+        return (destinationTile, distance);
     }
 
     // add random tiles of given type
@@ -397,5 +465,224 @@ internal class Utils
                 }
             }
         });
+    }
+
+    // creates a path from given mountain to a water tile nearby
+    internal static List<Tile> CreateRiverPath(List<Tile> grid, int rows, int columns, Mountain mountain, int maxLength)
+    {
+        List<Tile> riverPath = new();
+        Random random = new();
+        var mountainCoords = mountain.coordinates.ToOffset();
+        var mountainTile = grid[mountainCoords.y * columns + mountainCoords.x];
+        List<Tile> openList = new();
+        List<Tile> closedList = new();
+        int loopMax = Utils.MAXLOOPS;
+        var nextTile = mountainTile;
+        bool success = false;
+        int lastDistance = 0;
+        do
+        {
+            // add current open list to closed list
+            if(openList.Count > 0)
+            {
+                closedList.AddRange(openList);
+                openList.Clear();
+            }
+            // get neighbors and add neighbors to open list
+            var neighbors = Utils.Neighbors(grid, rows, columns, nextTile.coordinates);
+            foreach (var neighbor in neighbors)
+            {
+                if (success == false)
+                {
+                    if (neighbor.terrain == TerrainType.SHALLOW_WATER ||
+                       neighbor.terrain == TerrainType.DEEP_WATER)
+                    {
+                        // END found water tile -> clear open list
+                        openList.Clear();
+                        success = true;
+                    }
+                    else if (neighbor.terrain != TerrainType.MOUNTAIN &&
+                            neighbor.river == RiverType.NONE)
+                    {
+                        // if it is not a mountain tile and not already in closed list
+                        if (!closedList.Contains(neighbor))
+                        {
+                            openList.Add(neighbor);
+                        }
+                    }
+                }
+            }
+            // select next tile
+            if (openList.Count > 0 && success == false)
+            {
+                List<Tile> possibleTiles = new();
+                // in near surrounding of mountain, make sure next tile is further away from mountain as last tile
+                if (lastDistance < 2)
+                {
+                    for (int i = 0; i < openList.Count; ++i)
+                    {
+                        var distanceToMountain = mountainTile.coordinates.DistanceTo(openList[i].coordinates);
+                        if (distanceToMountain > lastDistance)
+                        {
+                            possibleTiles.Add(openList[i]);
+                        }
+                    }
+                }
+                // after some tiles away river should start to find water
+                else
+                {
+                    possibleTiles = openList;
+                }
+                if (possibleTiles.Count > 0)
+                {
+                    // determine next tile
+                    if (random.Next(0, 4) == 0)
+                    {
+                        // option 1: random tile
+                        nextTile = possibleTiles[random.Next(0, possibleTiles.Count)];
+                        lastDistance = mountainTile.coordinates.DistanceTo(nextTile.coordinates);
+                    }
+                    else
+                    {
+                        // option 2: sort by distanceToWater first
+                        List<(Tile tile, int distanceToWater)> sortedTiles = new();
+                        foreach (var tile in possibleTiles)
+                        {
+                            var data = Utils.FindNearestTile(grid, rows, columns, tile.coordinates, 20, TerrainType.SHALLOW_WATER);
+                            if (data.destinationTile is not null)
+                            {
+                                sortedTiles.Add((tile, data.distance));
+                            }
+                        }
+                        sortedTiles.Sort((a, b) => a.distanceToWater - b.distanceToWater);
+                        nextTile = sortedTiles.First().tile;
+                    }
+                    lastDistance = mountainTile.coordinates.DistanceTo(nextTile.coordinates);
+                    riverPath.Add(nextTile);
+                }
+                else
+                {
+                    // END no possible tiles for river
+                    closedList.AddRange(openList);
+                    openList.Clear();
+                }
+            }
+            // if river is too long, stop computing it
+            if(riverPath.Count > maxLength)
+            {
+                // END max length exceeded
+                closedList.AddRange(openList);
+                openList.Clear();
+            }
+            --loopMax;
+        } while (loopMax > 0 && openList.Count > 0);
+        
+        return riverPath;
+    }
+
+    // computes the distance to next river tile
+    internal static int DistanceToRiver(List<Tile> grid, int rows, int columns, CubeCoordinates coordinates, int maxDistance)
+    {
+        int distance = 0;
+        int radius = 1;
+        do
+        {
+            var tileCoordinates = coordinates.RingAround(radius, Direction.W);
+            foreach (var tileCoordinate in tileCoordinates)
+            {
+                var coord = tileCoordinate.ToOffset();
+                if (coord.x >= 0 && coord.x < columns && coord.y >= 0 && coord.y < rows)
+                {
+                    var tile = grid[coord.y * columns + coord.x];
+                    if (tile.river == RiverType.RIVER)
+                    {
+                        distance = radius;
+                        break;
+                    }
+                }
+            }
+            ++radius;
+        } while (distance == 0 && radius <= maxDistance);
+        return distance;
+    }
+
+    // returns all elements that are in every given array
+    internal static List<Tile> FindCommonTiles(List<List<Tile>> arrays)
+    {
+        if (arrays.Count == 0)
+        {
+            return new List<Tile>();
+        }
+        if (arrays.Count == 1)
+        {
+            return arrays.First();
+        }
+        // custom compare function for tiles
+
+        // find longest array
+        int indexOfLongestArray = 0;
+        int longestArraySize = 0;
+        for (int i = 0; i < arrays.Count; ++i)
+        {
+            if (arrays[i].Count > longestArraySize)
+            {
+                longestArraySize = arrays[i].Count;
+                indexOfLongestArray = i;
+            }
+        }
+        // find tiles that are in all arrays
+        var computeArray = arrays[indexOfLongestArray];
+        List<int> indexToRemove = new();
+        for (int j = 0; j < computeArray.Count; ++j)
+        {
+            for (int i = 0; i < arrays.Count; ++i)
+            {
+                if (i == indexOfLongestArray)
+                {
+                    continue;
+                }
+                bool found = false;
+                if (!arrays[i].Contains(computeArray[j]))
+                {
+                    found = true;
+                }
+                if (found == false)
+                {
+                    indexToRemove.Add(i);
+                }
+            }
+        }
+        List<Tile> returnList = new();
+        for (int i = 0; i < computeArray.Count; ++i)
+        {
+            if(!indexToRemove.Contains(i))
+            {
+                returnList.Add(computeArray[i]);
+            }
+        }
+        return returnList;
+    }
+
+    internal static void ExpandRiverPath(List<Tile> grid, int rows, int columns, Mountain mountain, List<Tile> riverPath)
+    {
+        // so there is now a path of single tiles, append it for a second tile
+        List<List<Tile>> riverTileNeighbors = new();
+        var mountainTileNeighbors = Utils.Neighbors(grid, rows, columns, mountain.coordinates);
+        foreach(var tile in riverPath)
+        {
+            riverTileNeighbors.Add(Utils.Neighbors(grid, rows, columns, tile.coordinates));
+        }
+        // special case river path of 1 tile
+        if (riverPath.Count == 1)
+        {
+            throw new Exception("River path of 1 tile is not supported");
+        }
+        // start by finding first river bank tile
+        List<Tile> otherRiverBank = new();
+        var sharedTiles = Utils.FindCommonTiles(mountainTileNeighbors, riverTileNeighbors[0], riverTileNeighbors[1]);
+        if(sharedTiles.Count == 1)
+        {
+
+        }
     }
 }
