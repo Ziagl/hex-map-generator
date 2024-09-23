@@ -1,6 +1,8 @@
 ﻿using com.hexagonsimulations.Geometry.Hex;
 using com.hexagonsimulations.Geometry.Hex.Enums;
 using HexMapGenerator.enums;
+using System;
+using System.Data;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("HexMapGenerator.Tests")]
@@ -288,6 +290,21 @@ internal class Utils
         return neighbors;
     }
 
+    // counts given types in given grid
+    internal static int CountTiles(List<Tile> grid, List<TerrainType> types)
+    {
+        int count = 0;
+        for (int i = 0; i < grid.Count; i++)
+        {
+            if (types.Contains(grid[i].terrain))
+            {
+                ++count;
+            }
+        }
+        return count;
+    }
+
+    // extends water border between two continents
     internal static void ExpandContinentDrift(List<Tile> grid, int rows, int columns, int waterTiles)
     {
         int loopMax = Utils.MAXLOOPS;
@@ -467,6 +484,130 @@ internal class Utils
         });
     }
 
+    // returns an array of map rows for each climate zone
+    internal static List<List<int>> ClimateZonesSeparation(int rows)
+    {
+        List<List<int>> climateZoneRows = new();
+        int lastRows = 0;
+        foreach(var zoneSize in TileDistribution.climateZoneSizes)
+        {
+            // create new array of lines for climate zone
+            List<int> rowNumbers = new();
+            // rows per hemisphere
+            int neededRows = (int)((zoneSize * rows) / 2);
+            for(int i = 0; i < neededRows; ++i)
+            {
+                rowNumbers.Add(lastRows + i);
+                rowNumbers.Add(rows - (lastRows + i + 1));
+            }
+            climateZoneRows.Add(rowNumbers);
+            lastRows += rowNumbers.Count / 2;
+        }
+        return climateZoneRows;
+    }
+
+    // returns a random tile of given grid
+    internal static Tile RandomTileOfRow(List<Tile> grid, int rows, int columns, int row)
+    {
+        Random random = new();
+        if(row < 0 || row > rows)
+        {
+            row = 0;
+        }
+        int column = random.Next(0, columns);
+        return grid[row * columns + column];
+    }
+
+    // converts given number of plain terrain tiles to given tile type
+    internal static void AddRandomTerrain(List<Tile> grid, int rows, int columns, TerrainType typeFlat, TerrainType typeHill, int count, TileDistribution distribution)
+    {
+        Random random = new();
+        int loopMax = Utils.MAXLOOPS;
+        var rowsPerZone = Utils.ClimateZonesSeparation(rows);
+        List<int> tilesPerZone = new();
+        tilesPerZone.Add((int)(distribution.polar * count));
+        tilesPerZone.Add((int)(distribution.temperate * count));
+        tilesPerZone.Add((int)(distribution.dry * count));
+        tilesPerZone.Add((int)(distribution.tropical * count));
+        int currentZone = 0;
+        do
+        {
+            // place tile for current zone
+            if (tilesPerZone[currentZone] > 0)
+            {
+                int randomRowIndex = random.Next(0, rowsPerZone[currentZone].Count);
+                var tile = Utils.RandomTileOfRow(grid, rows, columns, rowsPerZone[currentZone][randomRowIndex]);
+                if (tile.terrain == TerrainType.PLAIN)
+                {
+                    tile.terrain = typeFlat;
+                    --tilesPerZone[currentZone];
+                    --count;
+                }
+                else if (tile.terrain == TerrainType.PLAIN_HILLS)
+                {
+                    tile.terrain = typeHill;
+                    --tilesPerZone[currentZone];
+                    --count;
+                }
+            }
+            else
+            {
+                if (currentZone < tilesPerZone.Count - 1)
+                {
+                    ++currentZone;
+                }
+                else
+                {
+                    // place random tile instead? TODO
+                    count = 0;
+                }
+            }
+            --loopMax;
+        } while (count > 0 && loopMax > 0);
+    }
+
+    // adds given landscape type to given terrain tiles
+    internal static void AddRandomLandscape(List<Tile> grid, int rows, int columns, LandscapeType type, List<TerrainType> terrains, int count, TileDistribution distribution)
+    {
+        Random random = new();
+        int loopMax = Utils.MAXLOOPS;
+        var rowsPerZone = Utils.ClimateZonesSeparation(rows);
+        List<int> tilesPerZone = new();
+        tilesPerZone.Add((int)(distribution.polar * count));
+        tilesPerZone.Add((int)(distribution.temperate * count));
+        tilesPerZone.Add((int)(distribution.dry * count));
+        tilesPerZone.Add((int)(distribution.tropical * count));
+        int currentZone = 0;
+        do
+        {
+            // place tile for current zone
+            if (tilesPerZone[currentZone] > 0)
+            {
+                int randomRowIndex = random.Next(0, rowsPerZone[currentZone].Count);
+                var tile = Utils.RandomTileOfRow(grid, rows, columns, rowsPerZone[currentZone][randomRowIndex]);
+                if(terrains.Contains(tile.terrain))
+                {
+                    tile.landscape = type;
+                    --tilesPerZone[currentZone];
+                    --count;
+                }
+            }
+            else
+            {
+                if(currentZone < tilesPerZone.Count - 1)
+                {
+                    ++currentZone;
+                }
+                else
+                {
+                    // place random landscape instead? TODO
+                    count = 0;
+                }
+            }
+            --loopMax;
+        } while (count > 0 && loopMax > 0);
+    }
+
     // creates a path from given mountain to a water tile nearby
     internal static List<Tile> CreateRiverPath(List<Tile> grid, int rows, int columns, Mountain mountain, int maxLength)
     {
@@ -609,61 +750,25 @@ internal class Utils
     // returns all elements that are in every given array
     internal static List<Tile> FindCommonTiles(List<List<Tile>> arrays)
     {
-        if (arrays.Count == 0)
+        // early exit
+        if (arrays == null || arrays.Count == 0)
         {
             return new List<Tile>();
         }
-        if (arrays.Count == 1)
-        {
-            return arrays.First();
-        }
-        // custom compare function for tiles
+       
+        // start with the first list
+        var commonTiles = new HashSet<Tile>(arrays[0]);
 
-        // find longest array
-        int indexOfLongestArray = 0;
-        int longestArraySize = 0;
-        for (int i = 0; i < arrays.Count; ++i)
+        // intersect with each subsequent list
+        foreach (var array in arrays.Skip(1))
         {
-            if (arrays[i].Count > longestArraySize)
-            {
-                longestArraySize = arrays[i].Count;
-                indexOfLongestArray = i;
-            }
+            commonTiles.IntersectWith(array);
         }
-        // find tiles that are in all arrays
-        var computeArray = arrays[indexOfLongestArray];
-        List<int> indexToRemove = new();
-        for (int j = 0; j < computeArray.Count; ++j)
-        {
-            for (int i = 0; i < arrays.Count; ++i)
-            {
-                if (i == indexOfLongestArray)
-                {
-                    continue;
-                }
-                bool found = false;
-                if (!arrays[i].Contains(computeArray[j]))
-                {
-                    found = true;
-                }
-                if (found == false)
-                {
-                    indexToRemove.Add(i);
-                }
-            }
-        }
-        List<Tile> returnList = new();
-        for (int i = 0; i < computeArray.Count; ++i)
-        {
-            if(!indexToRemove.Contains(i))
-            {
-                returnList.Add(computeArray[i]);
-            }
-        }
-        return returnList;
+
+        return commonTiles.ToList();
     }
 
-    internal static void ExpandRiverPath(List<Tile> grid, int rows, int columns, Mountain mountain, List<Tile> riverPath)
+    internal static void ExtendRiverPath(List<Tile> grid, int rows, int columns, Mountain mountain, List<Tile> riverPath)
     {
         // so there is now a path of single tiles, append it for a second tile
         List<List<Tile>> riverTileNeighbors = new();
@@ -679,10 +784,68 @@ internal class Utils
         }
         // start by finding first river bank tile
         List<Tile> otherRiverBank = new();
-        var sharedTiles = Utils.FindCommonTiles(mountainTileNeighbors, riverTileNeighbors[0], riverTileNeighbors[1]);
+        var sharedTiles = Utils.FindCommonTiles(new List<List<Tile>>() { mountainTileNeighbors, riverTileNeighbors[0], riverTileNeighbors[1] });
         if(sharedTiles.Count == 1)
         {
-
+            otherRiverBank.Add(sharedTiles[0]);
         }
+        else
+        {
+            var localSharedTiles = Utils.FindCommonTiles(new List<List<Tile>>() { mountainTileNeighbors, riverTileNeighbors[0] });
+            if(localSharedTiles.Count != 2)
+            {
+                throw new Exception("Error: special case for first tile of river failed.");
+            }
+            else
+            {
+                // randomly choose one of two neighbors
+                otherRiverBank.Add(localSharedTiles[new Random().Next(0, 2)]);
+            }
+        }
+        if (otherRiverBank.Count == 0)
+        {
+            throw new Exception("Error: special case for otherRiverBank is empty.");
+        }
+        else
+        {
+            // for all other tiles in riverPath
+            for(int i = 0; i < riverPath.Count; ++i)
+            {
+                int maxTry = 5;
+                int tryCount = 0;
+                do
+                {
+                    var otherRiverBankNeighbors = Utils.Neighbors(grid, rows, columns, otherRiverBank[^1].coordinates);
+                    // filter out all river tiles
+                    otherRiverBankNeighbors = otherRiverBankNeighbors.Except(riverPath).ToList();
+                    sharedTiles = Utils.FindCommonTiles(new List<List<Tile>>() { sharedTiles, riverPath });
+                    foreach(var sharedTile in sharedTiles)
+                    {
+                        if(sharedTile.terrain != TerrainType.SHALLOW_WATER && sharedTile.coordinates != mountain.coordinates)
+                        {
+                            if(!otherRiverBank.Contains(sharedTile))
+                            {
+                                otherRiverBank.Add(sharedTile);
+                            }
+                        }
+                    }
+                    ++tryCount;
+                } while (tryCount < maxTry);
+            }
+        }
+        for(int i = 0; i < otherRiverBank.Count; ++i)
+        {
+            otherRiverBank[i].river = RiverType.RIVERBANK;
+            riverPath.Add(otherRiverBank[i]);
+        }
+    }
+
+    // generates a map of coordinates and infos which river tiles should be added (NE, E, SE, SW, W, NW)
+    internal static Directory<CubeCoordinates, List<Direction>> GenerateRiverTileDirections(List<Tile> riverTiles)
+    {
+        // create empty dictionary
+        Directory<CubeCoordinates, List<Direction>> riverDirections = new();
+        //TODO
+        return riverDirections;
     }
 }

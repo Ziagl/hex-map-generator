@@ -148,6 +148,17 @@ public class UtilsTests
         common = Utils.FindCommonTiles(new List<List<Tile>> { array1, array3 });
         Assert.Equal(2, common.Count);
         common = Utils.FindCommonTiles(new List<List<Tile>> { array1, array2, array3 });
-        Assert.Equal(2, common.Count);
+        Assert.Single(common);
+    }
+    
+    [Fact]
+    public void TestCountTiles()
+    {
+        var grid = Enumerable.Repeat(new Tile(), 9).ToList();
+        Utils.InitializeHexGrid(grid, 3, 3, TerrainType.GRASS);
+        grid[0].terrain = TerrainType.SHALLOW_WATER;
+        grid[^1].terrain = TerrainType.DEEP_WATER;
+        Assert.True(Utils.CountTiles(grid, new List<TerrainType>() { TerrainType.SHALLOW_WATER, TerrainType.DEEP_WATER }) == 2);
+        Assert.True(Utils.CountTiles(grid, new List<TerrainType>() { TerrainType.GRASS }) == 7);
     }
 }

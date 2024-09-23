@@ -2,6 +2,7 @@
 using HexMapGenerator.generators;
 using HexMapGenerator.interfaces;
 using HexMapGenerator.models;
+using HexMapGenerator.shapers;
 
 namespace HexMapGenerator;
 
@@ -29,7 +30,7 @@ public class Generator
     public void GenerateMap(MapType type, MapSize size, MapTemperature temperature, MapHumidity humidity, float factorRiver)
     {
         IMapTerrainGenerator generator = null;
-        IMapLandscapeShaper shaper;
+        IMapLandscapeShaper shaper = new DefaultShaper();
 
         switch (type)
         {
@@ -70,12 +71,16 @@ public class Generator
             generator = new RandomGenerator();
         }
 
-        this._map.TerrainMap = generator.Generate(size);
-        this._map.Rows = generator.Rows;
-        this._map.Columns = generator.Columns;
+        // generate landmass and water
+        _map.TerrainMap = generator.Generate(size);
+        _map.Rows = generator.Rows;
+        _map.Columns = generator.Columns;
+
+        // decorate map
+        shaper.Generate(_map, temperature, humidity, factorRiver, _riverbed);
     }
 
-    public MapData MapData => this._map;
+    public MapData MapData => _map;
 
     /// <summary>
     /// print generated map unstructured
@@ -84,11 +89,11 @@ public class Generator
     public string Print()
     {
         string response = string.Empty;
-        for(int i = 0; i < this._map.Columns; ++i)
+        for(int i = 0; i < _map.Columns; ++i)
         {
-            for (int j = 0; j < this._map.Rows; ++j)
+            for (int j = 0; j < _map.Rows; ++j)
             {
-                response += this._map.TerrainMap[j * this._map.Columns + i] + " ";
+                response += _map.TerrainMap[j * _map.Columns + i] + " ";
             }
             response += "\n";
         }

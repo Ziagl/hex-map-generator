@@ -43,8 +43,90 @@ internal class DefaultShaper : IMapLandscapeShaper
 
         // generate rivers
         var generatedRivers = this.ComputeRivers(grid, map.Rows, map.Columns, riverCount, minRiverLength, riverBed);
+
+        // generate SNOW tiles and consider temperature
+        CreateSnowTiles(grid, map.Rows, temperature);
+
+        // generate TUNDRA and consider temperature
+        CreateTundraTiles(grid, map.Rows, temperature);
+
+        // generate GRASS tile and consider humidity
+        var affectedTerrain = new List<TerrainType>() { TerrainType.PLAIN, TerrainType.PLAIN_HILLS };
+        int defaultTiles = Utils.CountTiles(grid, affectedTerrain);
+        int grassTiles = (int)(defaultTiles * _factorGrass * (1.5 - 0.5 * (int)humidity));
+        var grassDistribution = new TileDistribution(0.0f, 0.5f, 0.1f, 0.4f);
+        Utils.AddRandomTerrain(grid, map.Rows, map.Columns, TerrainType.GRASS, TerrainType.GRASS_HILLS, grassTiles, grassDistribution);
+
+        // generate DESERT tile and consider humidity
+        int desertTiles = Utils.CountTiles(grid, affectedTerrain);
+        desertTiles = (int)(desertTiles * _factorDesert * (0.5 - 0.5 * (int)humidity));
+        var desertDistribution = new TileDistribution(0.0f, 0.1f, 0.8f, 0.1f);
+        Utils.AddRandomTerrain(grid, map.Rows, map.Columns, TerrainType.DESERT, TerrainType.DESERT_HILLS, desertTiles, desertDistribution);
+
+        // generate REEF tiles
+        affectedTerrain = new List<TerrainType>() { TerrainType.DEEP_WATER };
+        defaultTiles = Utils.CountTiles(grid, affectedTerrain);
+        int reefTiles = (int)(defaultTiles * _factorReef);
+        var reefDistribution = new TileDistribution(0.0f, 0.4f, 0.2f, 0.4f);
+        Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.REEF, affectedTerrain, reefTiles, reefDistribution);
+
+        if (temperature == MapTemperature.HOT)
+        {
+            affectedTerrain = new List<TerrainType>() { TerrainType.DESERT };
+            defaultTiles = Utils.CountTiles(grid, affectedTerrain);
+            int oasisTiles = (int)(defaultTiles * _factorOasis);
+            var oasisDistribution = new TileDistribution(0.0f, 0.1f, 0.8f, 0.1f);
+            Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.OASIS, affectedTerrain, oasisTiles, oasisDistribution);
+        }
+
+        // generate SWAMP tiles
+        affectedTerrain = new List<TerrainType>() { TerrainType.GRASS, TerrainType.PLAIN, TerrainType.TUNDRA };
+        defaultTiles = Utils.CountTiles(grid, affectedTerrain);
+        int swampTiles = (int)(defaultTiles * _factorSwamp * (1.5 + 0.5 * (int)humidity));
+        var swampDistribution = new TileDistribution(0.2f, 0.5f, 0.0f, 0.3f);
+        Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.SWAMP, affectedTerrain, swampTiles, swampDistribution);
+
+        // generate FOREST tiles
+        affectedTerrain = new List<TerrainType>() { TerrainType.GRASS, TerrainType.PLAIN, TerrainType.TUNDRA, TerrainType.GRASS_HILLS, TerrainType.PLAIN_HILLS, TerrainType.TUNDRA_HILLS };
+        defaultTiles = Utils.CountTiles(grid, affectedTerrain);
+        int forestTiles = (int)(defaultTiles * _factorWood * 0.5 * (1.5 - 0.5 * (int)humidity));
+        var forestDistribution = new TileDistribution(0.05f, 0.5f, 0.05f, 0.4f);
+        Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.FOREST, affectedTerrain, forestTiles, forestDistribution);
+
+        // generate JUNGLE tiles
+        affectedTerrain = new List<TerrainType>() { TerrainType.GRASS, TerrainType.PLAIN, TerrainType.GRASS_HILLS, TerrainType.PLAIN_HILLS };
+        defaultTiles = Utils.CountTiles(grid, affectedTerrain);
+        int jungleTiles = (int)(defaultTiles * _factorWood * 0.5 * (1.5 - 0.5 * (int)humidity));
+        var jungleDistribution = new TileDistribution(0.0f, 0.0f, 0.2f, 0.8f);
+        Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.JUNGLE, affectedTerrain, jungleTiles, jungleDistribution);
+
+        // generate VOLCANO tiles
+        affectedTerrain = new List<TerrainType>() { TerrainType.MOUNTAIN };
+        defaultTiles = Utils.CountTiles(grid, affectedTerrain);
+        int volcanoTiles = _random.Next(0, Math.Min(10, (int)(defaultTiles / 10)));
+        var volcanoDistribution = new TileDistribution();
+        Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.VOLCANO, affectedTerrain, volcanoTiles, volcanoDistribution);
+
+        // add landscape and river to map
+        List<int> landscapeTiles = new();
+        List<int> riverTiles = new();
+        foreach (var tile in grid)
+        {
+            landscapeTiles.Add((int)tile.landscape);
+            riverTiles.Add((int)tile.river);
+        }
+        map.LandscapeMap = landscapeTiles;
+        map.RiverMap = riverTiles;
+
+        // generate river directions
+        foreach (var river in generatedRivers)
+        {
+            var res = Utils.GenerateRiverTileDirections(river);
+        }
     }
 
+    // compute given number of rivers on given grid and returns them, riverbed defines range around
+    // river no other river can be added to map
     private List<List<Tile>> ComputeRivers(List<Tile> grid, int rows, int columns, int rivers, int minRiverLength, int riverbed)
     {
         // create a list of mountains
@@ -99,7 +181,7 @@ internal class DefaultShaper : IMapLandscapeShaper
                         }
                     }
                     // generate riverbed
-                    Utils.ExpandRiverPath(grid, rows, columns, mountain, riverPath);
+                    Utils.ExtendRiverPath(grid, rows, columns, mountain, riverPath);
                     // add river to list of rivers
                     generatedRivers.Add(riverPath);
                 }
@@ -108,5 +190,112 @@ internal class DefaultShaper : IMapLandscapeShaper
             --maxTry;
         }while(rivers > generatedRivers.Count && maxTry > 0 && mountains.Count > 0);
         return generatedRivers;
+    }
+
+    // create snow tiles in polar region
+    private void CreateSnowTiles(List<Tile> grid, int rows, MapTemperature temperature)
+    {
+        Random random = new();
+
+        foreach (var tile in grid)
+        {
+            int chance = 0;
+            if (tile.coordinates.r == 0 || tile.coordinates.r == rows - 1)
+            {
+                chance = 10;
+            }
+            if ((int)temperature < (int)MapTemperature.HOT)
+            {
+                if (tile.coordinates.r == 1 || tile.coordinates.r == rows - 2)
+                {
+                    if ((int)temperature < (int)MapTemperature.NORMAL)
+                    {
+                        chance = 6;
+                    }
+                    else
+                    {
+                        chance = 4;
+                    }
+                }
+            }
+            if ((int)temperature < (int)MapTemperature.NORMAL)
+            {
+                if (tile.coordinates.r == 2 || tile.coordinates.r == rows - 3)
+                {
+                    chance = 4;
+                }
+            }
+
+            if (chance > 0 && random.Next(0, 10) < chance)
+            {
+                switch (tile.terrain)
+                {
+                    case TerrainType.SHALLOW_WATER:
+                    case TerrainType.DEEP_WATER:
+                        tile.landscape = LandscapeType.ICE;
+                        break;
+                    case TerrainType.PLAIN_HILLS:
+                        tile.terrain = TerrainType.SNOW_HILLS;
+                        break;
+                    case TerrainType.PLAIN:
+                        tile.terrain = TerrainType.SNOW;
+                        break;
+                }
+            }
+        }
+    }
+
+    // create snow tiles in polar region
+    private void CreateTundraTiles(List<Tile> grid, int rows, MapTemperature temperature)
+    {
+        Random random = new();
+
+        foreach (var tile in grid)
+        {
+            int chance = 0;
+            if (tile.coordinates.r == 1 || tile.coordinates.r == rows - 2)
+            {
+                chance = 10;
+            }
+            if(tile.coordinates.r == 2 || tile.coordinates.r == rows -3)
+            {
+                switch(temperature)
+                {
+                    case MapTemperature.HOT:
+                        chance = 3;
+                        break;
+                    case MapTemperature.NORMAL:
+                        chance = 8;
+                        break;
+                    case MapTemperature.COLD:
+                        chance = 9;
+                        break;
+                }
+            }
+            if ((int)temperature < (int)MapTemperature.NORMAL)
+            {
+                if (tile.coordinates.r == 3 || tile.coordinates.r == rows - 4)
+                {
+                    chance = 6;
+                }
+                if (tile.coordinates.r == 4 || tile.coordinates.r == rows - 5)
+                {
+                    chance = 3;
+                }
+            }
+
+            if (chance > 0 && random.Next(0, 10) < chance)
+            {
+                switch (tile.terrain)
+                {
+                    case TerrainType.PLAIN_HILLS:
+                        tile.terrain = TerrainType.TUNDRA_HILLS;
+                        break;
+                    case TerrainType.PLAIN:
+                        tile.terrain = TerrainType.TUNDRA;
+                        break;
+                }
+            }
+        }
     }
 }
