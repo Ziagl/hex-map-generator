@@ -9,10 +9,28 @@
     <Authors>Werner Ziegelwanger</Authors>
     <Company>Hexagon Simulations</Company>
     <Description>A hexagon map generator for Tiled Map Editor (https://www.mapeditor.org/) files.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageProjectUrl>https://hexagon-simulations.com/</PackageProjectUrl>
+    <Copyright>Hexagon Simulations</Copyright>
+    <RepositoryUrl>https://github.com/Ziagl/hex-map-generator</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>hexagon geometry map generator tile tiled 2d library</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Remove="C:\Users\werne\.nuget\packages\hexmapbase\0.0.1\contentFiles\any\net6.0\icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
