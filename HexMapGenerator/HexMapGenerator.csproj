@@ -5,6 +5,10 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Version>0.1.0</Version>
+    <Authors>Werner Ziegelwanger</Authors>
+    <Company>Hexagon Simulations</Company>
+    <Description>A hexagon map generator for Tiled Map Editor (https://www.mapeditor.org/) files.</Description>
   </PropertyGroup>
 
   <ItemGroup>
