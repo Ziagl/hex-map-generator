@@ -1,11 +1,8 @@
-﻿using HexMapGenerator.enums;
+﻿using HexMapGenerator.models;
 
 namespace HexMapGenerator.interfaces;
 
 internal interface IMapTerrainGenerator
 {
-    int Rows { get; }
-    int Columns { get; }
-
-    List<int> Generate(MapSize size);
+    void Generate(MapData data);
 }

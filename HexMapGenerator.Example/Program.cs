@@ -4,7 +4,7 @@ using HexMapGenerator.enums;
 
 // generator values
 var mapSize = MapSize.SMALL;
-var mapType = MapType.SUPER_CONTINENT;
+var mapType = MapType.HIGHLAND;
 var mapTemperature = MapTemperature.NORMAL;
 var mapHumidity = MapHumidity.NORMAL;
 float factorRiver = 0.0f;

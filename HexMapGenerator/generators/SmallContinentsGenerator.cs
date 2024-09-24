@@ -6,35 +6,26 @@ namespace HexMapGenerator.generators;
 
 internal class SmallContinentsGenerator : IMapTerrainGenerator
 {
-    private readonly MapType _type = MapType.CONTINENTS;
-    private MapSize _size = MapSize.TINY;
-    private int _rows = 0;
-    private int _columns = 0;
-
     private readonly float _factorLand = 0.8f;
     private readonly float _factorWater = 0.15f;
     private readonly float _factorMountain = 0.04f;
     private readonly float _factorHills = 0.08f;
 
-    public List<int> Generate(MapSize size)
+    public void Generate(MapData map)
     {
-        this._size = size;
-        var mapSize = Utils.ConvertMapSize(this._size);
-        this._rows = mapSize.rows;
-        this._columns = mapSize.columns;
         var random = new Random();
 
         // create empty grid
-        List<Tile> grid = Enumerable.Repeat(new Tile(), this._rows * this._columns).ToList();
+        List<Tile> grid = Enumerable.Repeat(new Tile(), map.Rows * map.Columns).ToList();
 
         // 1. create a plain map
-        Utils.InitializeHexGrid(grid, this._rows, this._columns, TerrainType.SHALLOW_WATER);
+        Utils.InitializeHexGrid(grid, map.Rows, map.Columns, TerrainType.SHALLOW_WATER);
 
         // 2. add randomly continents
         int landTiles = (int)(grid.Count * this._factorLand);
         int continentCounter = random.Next(5, 10); // number of continents
         // set contintent seeds to the map with numbering MAXCONTINENTSEED - continentCounter
-        Utils.AddRandomContinentSeed(grid, this._rows, this._columns, TerrainType.SHALLOW_WATER, continentCounter);
+        Utils.AddRandomContinentSeed(grid, map.Rows, map.Columns, TerrainType.SHALLOW_WATER, continentCounter);
 
         // 3. expand continents without touching other continents
         List<(int key, List<Tile> value)> continentTiles = new();
@@ -62,13 +53,13 @@ internal class SmallContinentsGenerator : IMapTerrainGenerator
                 List<Tile> addedContinentTilesArray = new();
                 foreach (var tile in continentTilesArray)
                 {
-                    var neighbors = Utils.RandomNeighbors(grid, this._rows, this._columns, tile.coordinates);
+                    var neighbors = Utils.RandomNeighbors(grid, map.Rows, map.Columns, tile.coordinates);
                     foreach (var neighbor in neighbors)
                     {
                         if (neighbor.continentSeed == 0 && landTiles > 0)
                         {
                             // check if an adjacent field is not from another continent (continents should not touch!)
-                            var tileNeighbors = Utils.Neighbors(grid, this._rows, this._columns, neighbor.coordinates);
+                            var tileNeighbors = Utils.Neighbors(grid, map.Rows, map.Columns, neighbor.coordinates);
                             if (tileNeighbors.Any(tileNeighbor => tileNeighbor.continentSeed == continentToExpand) &&
                                !tileNeighbors.Any(tileNeighbor => tileNeighbor.continentSeed != continentToExpand && tileNeighbor.continentSeed >= minContinentSeed))
                             {
@@ -97,10 +88,10 @@ internal class SmallContinentsGenerator : IMapTerrainGenerator
         loopMax = Utils.MAXLOOPS;
         do
         {
-            var tile = Utils.RandomTile(grid, this._rows, this._columns);
+            var tile = Utils.RandomTile(grid, map.Rows, map.Columns);
             if (tile.continentSeed == 0)
             {
-                var tileNeighbors = Utils.Neighbors(grid, this._rows, this._columns, tile.coordinates);
+                var tileNeighbors = Utils.Neighbors(grid, map.Rows, map.Columns, tile.coordinates);
                 continentCounter = 0;
                 List<int> continentDistinguisher = new();
                 foreach (var neighbor in tileNeighbors)
@@ -113,7 +104,7 @@ internal class SmallContinentsGenerator : IMapTerrainGenerator
                 }
                 if (continentCounter > 1)
                 {
-                    var neighbos = Utils.RandomNeighbors(grid, this._rows, this._columns, tile.coordinates);
+                    var neighbos = Utils.RandomNeighbors(grid, map.Rows, map.Columns, tile.coordinates);
                     foreach (var neighbor in neighbos)
                     {
                         if (neighbor.continentSeed >= minContinentSeed)
@@ -140,11 +131,11 @@ internal class SmallContinentsGenerator : IMapTerrainGenerator
         // add randomly lakes
         int lakeCounter = waterTiles / random.Next(5, 8); // number of lakes (fifth, sixth or seventh of max number of tiles)
         List<Tile> lakeTiles = new();
-        Utils.AddRandomTileSeed(grid, this._rows, this._columns, lakeTiles, TerrainType.SHALLOW_WATER, TerrainType.PLAIN, lakeCounter, waterTiles);
+        Utils.AddRandomTileSeed(grid, map.Rows, map.Columns, lakeTiles, TerrainType.SHALLOW_WATER, TerrainType.PLAIN, lakeCounter, waterTiles);
         // expand lakes
-        Utils.ExpandWater(grid, this._rows, this._columns, lakeTiles, waterTiles);
+        Utils.ExpandWater(grid, map.Rows, map.Columns, lakeTiles, waterTiles);
         // create deep water tiles
-        Utils.ShallowToDeepWater(grid, this._rows, this._columns);
+        Utils.ShallowToDeepWater(grid, map.Rows, map.Columns);
 
         // 5. create random hills
         int mountainTiles = (int)(grid.Count * this._factorMountain);
@@ -152,18 +143,14 @@ internal class SmallContinentsGenerator : IMapTerrainGenerator
         hillTiles = hillTiles + mountainTiles; // mountains can only be generated from hills
         int hillCounter = (int)(hillTiles / random.Next(5, 8)); // number of mountain ranges
         List<Tile> mountainRangesTiles = new();
-        Utils.AddRandomTileSeed(grid, this._rows, this._columns, mountainRangesTiles, TerrainType.PLAIN_HILLS, TerrainType.PLAIN, hillCounter, hillTiles);
+        Utils.AddRandomTileSeed(grid, map.Rows, map.Columns, mountainRangesTiles, TerrainType.PLAIN_HILLS, TerrainType.PLAIN, hillCounter, hillTiles);
 
         // 6. expand hills
-        Utils.ExpandHills(grid, this._rows, this._columns, mountainRangesTiles, hillTiles);
+        Utils.ExpandHills(grid, map.Rows, map.Columns, mountainRangesTiles, hillTiles);
 
         // 7. create mountain tiles
-        Utils.HillsToMountains(grid, this._rows, this._columns, mountainTiles);
+        Utils.HillsToMountains(grid, map.Rows, map.Columns, mountainTiles);
 
-        return Utils.ConvertGrid(grid);
+        map.TerrainMap = Utils.ConvertGrid(grid);
     }
-
-    public int Rows => this._rows;
-
-    public int Columns => this._columns;
 }

@@ -29,6 +29,14 @@ public class Generator
     /// <param name="factorRiver">factor of rivers to create (factor * Map.Size)</param>
     public void GenerateMap(MapType type, MapSize size, MapTemperature temperature, MapHumidity humidity, float factorRiver)
     {
+        _map.Type = type;
+        _map.Size = size;
+        _map.Temperature = temperature;
+        _map.Humidity = humidity;
+        var mapSize = Utils.ConvertMapSize(size);
+        _map.Rows = mapSize.rows;
+        _map.Columns = mapSize.columns;
+
         IMapTerrainGenerator generator = null;
         IMapLandscapeShaper shaper = new DefaultShaper();
 
@@ -72,12 +80,10 @@ public class Generator
         }
 
         // generate landmass and water
-        _map.TerrainMap = generator.Generate(size);
-        _map.Rows = generator.Rows;
-        _map.Columns = generator.Columns;
+        generator.Generate(_map);
 
         // decorate map
-        shaper.Generate(_map, temperature, humidity, factorRiver, _riverbed);
+        shaper.Generate(_map, factorRiver, _riverbed);
     }
 
     public MapData MapData => _map;

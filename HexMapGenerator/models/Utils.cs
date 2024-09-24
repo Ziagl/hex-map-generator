@@ -494,7 +494,7 @@ internal class Utils
             // create new array of lines for climate zone
             List<int> rowNumbers = new();
             // rows per hemisphere
-            int neededRows = (int)((zoneSize * rows) / 2);
+            int neededRows = (int)Math.Round(zoneSize * rows / 2);
             for(int i = 0; i < neededRows; ++i)
             {
                 rowNumbers.Add(lastRows + i);
@@ -841,11 +841,68 @@ internal class Utils
     }
 
     // generates a map of coordinates and infos which river tiles should be added (NE, E, SE, SW, W, NW)
-    internal static Directory<CubeCoordinates, List<Direction>> GenerateRiverTileDirections(List<Tile> riverTiles)
+    internal static Dictionary<CubeCoordinates, List<Direction>> GenerateRiverTileDirections(List<Tile> riverTiles)
     {
         // create empty dictionary
-        Directory<CubeCoordinates, List<Direction>> riverDirections = new();
-        //TODO
+        Dictionary<CubeCoordinates, List<Direction>> riverDirections = new();
+        for (int i = 0; i < riverTiles.Count; ++i)
+        {
+            for (int j = 0; j < riverTiles.Count; ++j)
+            {
+                if (i == j)
+                {
+                    continue;
+                }
+                if (riverTiles[i].river != riverTiles[j].river)
+                {
+                    List<Direction> neighborDirections = new();
+                    var key = riverTiles[i].coordinates;
+                    if (riverDirections.ContainsKey(key))
+                    {
+                        neighborDirections = riverDirections[key];
+                    }
+                    var direction = DetectNeighborhood(riverTiles[i], riverTiles[j]);
+                    if (direction is not null && !neighborDirections.Contains(direction.Value))
+                    {
+                        neighborDirections.Add(direction.Value);
+                    }
+                    riverDirections[key] = neighborDirections;
+                }
+            }
+        }
         return riverDirections;
+    }
+
+    // detects if two tiles are neighbors and returns the direction from target point of view, undefined if not a neighbor
+    internal static Direction? DetectNeighborhood(Tile source, Tile target)
+    {
+        int q = target.coordinates.q - source.coordinates.q;
+        int r = target.coordinates.r - source.coordinates.r;
+        int s = target.coordinates.s - source.coordinates.s;
+        if(q == 1 && r == -1 && s == 0)
+        {
+            return Direction.NE;
+        }
+        if (q == 1 && r == 0 && s == -1)
+        {
+            return Direction.E;
+        }
+        if (q == 0 && r == 1 && s == -1)
+        {
+            return Direction.SE;
+        }
+        if (q == -1 && r == 1 && s == 0)
+        {
+            return Direction.SW;
+        }
+        if (q == -1 && r == 0 && s == 1)
+        {
+            return Direction.W;
+        }
+        if (q == 0 && r == -1 && s == 1)
+        {
+            return Direction.NW;
+        }
+        return null;
     }
 }

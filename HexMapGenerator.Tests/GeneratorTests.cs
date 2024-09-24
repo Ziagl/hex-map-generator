@@ -19,6 +19,9 @@ public class GeneratorTests
         var generator = new Generator();
         generator.GenerateMap(MapType.ARCHIPELAGO, MapSize.TINY, MapTemperature.COLD, MapHumidity.WET, 0.0f);
         Assert.Equal(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.True(generator.MapData.RiverTileDirections.Count == 0);
     }
 
     [Fact]
@@ -27,6 +30,9 @@ public class GeneratorTests
         var generator = new Generator();
         generator.GenerateMap(MapType.CONTINENTS, MapSize.TINY, MapTemperature.HOT, MapHumidity.DRY, 0.0f);
         Assert.Equal(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.True(generator.MapData.RiverTileDirections.Count == 0);
     }
 
     [Fact]
@@ -35,6 +41,9 @@ public class GeneratorTests
         var generator = new Generator();
         generator.GenerateMap(MapType.CONTINENTS_ISLANDS, MapSize.TINY, MapTemperature.COLD, MapHumidity.DRY, 0.0f);
         Assert.Equal(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.True(generator.MapData.RiverTileDirections.Count == 0);
     }
 
     [Fact]
@@ -43,6 +52,9 @@ public class GeneratorTests
         var generator = new Generator();
         generator.GenerateMap(MapType.HIGHLAND, MapSize.SMALL, MapTemperature.NORMAL, MapHumidity.NORMAL, 0.0f);
         Assert.Equal(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.True(generator.MapData.RiverTileDirections.Count == 0);
     }
 
     [Fact]
@@ -51,6 +63,9 @@ public class GeneratorTests
         var generator = new Generator();
         generator.GenerateMap(MapType.INLAND_SEA, MapSize.MEDIUM, MapTemperature.HOT, MapHumidity.WET, 0.0f);
         Assert.Equal(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.True(generator.MapData.RiverTileDirections.Count == 0);
     }
 
     [Fact]
@@ -59,6 +74,9 @@ public class GeneratorTests
         var generator = new Generator();
         generator.GenerateMap(MapType.ISLANDS, MapSize.LARGE, MapTemperature.NORMAL, MapHumidity.WET, 0.0f);
         Assert.Equal(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.True(generator.MapData.RiverTileDirections.Count == 0);
     }
 
     [Fact]
@@ -67,6 +85,9 @@ public class GeneratorTests
         var generator = new Generator();
         generator.GenerateMap(MapType.LAKES, MapSize.HUGE, MapTemperature.COLD, MapHumidity.WET, 0.0f);
         Assert.Equal(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.True(generator.MapData.RiverTileDirections.Count == 0);
     }
 
     [Fact]
@@ -75,13 +96,19 @@ public class GeneratorTests
         var generator = new Generator();
         generator.GenerateMap(MapType.SMALL_CONTINENTS, MapSize.MICRO, MapTemperature.HOT, MapHumidity.NORMAL, 0.0f);
         Assert.Equal(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.True(generator.MapData.RiverTileDirections.Count == 0);
     }
 
     [Fact]
     public void TestSuperContinentGenerator()
     {
         var generator = new Generator();
-        generator.GenerateMap(MapType.SUPER_CONTINENT, MapSize.MEDIUM, MapTemperature.NORMAL, MapHumidity.DRY, 0.0f);
+        generator.GenerateMap(MapType.SUPER_CONTINENT, MapSize.MEDIUM, MapTemperature.NORMAL, MapHumidity.DRY, 1.0f);
         Assert.Equal(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.Equal(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.True(generator.MapData.RiverTileDirections.Count > 0);
     }
 }

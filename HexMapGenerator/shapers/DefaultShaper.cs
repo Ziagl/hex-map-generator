@@ -7,7 +7,7 @@ namespace HexMapGenerator.shapers;
 
 internal class DefaultShaper : IMapLandscapeShaper
 {
-    private readonly float _factorGrass = 0.3f;
+    private readonly float _factorGrass = 0.5f;
     private readonly float _factorDesert = 0.07f;
     private readonly float _factorReef = 0.05f;
     private readonly float _factorOasis = 0.05f;
@@ -16,7 +16,7 @@ internal class DefaultShaper : IMapLandscapeShaper
 
     private Random _random = new();
 
-    public void Generate(MapData map, MapTemperature temperature, MapHumidity humidity, float factorRiver, int riverBed)
+    public void Generate(MapData map, float factorRiver, int riverBed)
     {
         // create empty grid
         List<Tile> grid = Enumerable.Repeat(new Tile(), map.Rows * map.Columns).ToList();
@@ -38,28 +38,28 @@ internal class DefaultShaper : IMapLandscapeShaper
         }
 
         // how many rivers should we create? depending on map size
-        int riverCount = (int)(factorRiver * map.Rows * map.Columns);
+        int riverCount = (int)(factorRiver * (int)map.Size + 1);
         int minRiverLength = 3;
 
         // generate rivers
         var generatedRivers = this.ComputeRivers(grid, map.Rows, map.Columns, riverCount, minRiverLength, riverBed);
 
         // generate SNOW tiles and consider temperature
-        CreateSnowTiles(grid, map.Rows, temperature);
+        CreateSnowTiles(grid, map.Rows, map.Temperature);
 
         // generate TUNDRA and consider temperature
-        CreateTundraTiles(grid, map.Rows, temperature);
+        CreateTundraTiles(grid, map.Rows, map.Temperature);
 
         // generate GRASS tile and consider humidity
         var affectedTerrain = new List<TerrainType>() { TerrainType.PLAIN, TerrainType.PLAIN_HILLS };
         int defaultTiles = Utils.CountTiles(grid, affectedTerrain);
-        int grassTiles = (int)(defaultTiles * _factorGrass * (1.5 - 0.5 * (int)humidity));
+        int grassTiles = (int)(defaultTiles * _factorGrass * (1.5 - 0.5 * (int)map.Humidity));
         var grassDistribution = new TileDistribution(0.0f, 0.5f, 0.1f, 0.4f);
         Utils.AddRandomTerrain(grid, map.Rows, map.Columns, TerrainType.GRASS, TerrainType.GRASS_HILLS, grassTiles, grassDistribution);
 
         // generate DESERT tile and consider humidity
         int desertTiles = Utils.CountTiles(grid, affectedTerrain);
-        desertTiles = (int)(desertTiles * _factorDesert * (0.5 - 0.5 * (int)humidity));
+        desertTiles = (int)(desertTiles * _factorDesert * (0.5 + 0.5 * (int)map.Humidity));
         var desertDistribution = new TileDistribution(0.0f, 0.1f, 0.8f, 0.1f);
         Utils.AddRandomTerrain(grid, map.Rows, map.Columns, TerrainType.DESERT, TerrainType.DESERT_HILLS, desertTiles, desertDistribution);
 
@@ -70,7 +70,7 @@ internal class DefaultShaper : IMapLandscapeShaper
         var reefDistribution = new TileDistribution(0.0f, 0.4f, 0.2f, 0.4f);
         Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.REEF, affectedTerrain, reefTiles, reefDistribution);
 
-        if (temperature == MapTemperature.HOT)
+        if (map.Temperature == MapTemperature.HOT)
         {
             affectedTerrain = new List<TerrainType>() { TerrainType.DESERT };
             defaultTiles = Utils.CountTiles(grid, affectedTerrain);
@@ -82,21 +82,21 @@ internal class DefaultShaper : IMapLandscapeShaper
         // generate SWAMP tiles
         affectedTerrain = new List<TerrainType>() { TerrainType.GRASS, TerrainType.PLAIN, TerrainType.TUNDRA };
         defaultTiles = Utils.CountTiles(grid, affectedTerrain);
-        int swampTiles = (int)(defaultTiles * _factorSwamp * (1.5 + 0.5 * (int)humidity));
+        int swampTiles = (int)(defaultTiles * _factorSwamp * (1.5 + 0.5 * (int)map.Humidity));
         var swampDistribution = new TileDistribution(0.2f, 0.5f, 0.0f, 0.3f);
         Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.SWAMP, affectedTerrain, swampTiles, swampDistribution);
 
         // generate FOREST tiles
         affectedTerrain = new List<TerrainType>() { TerrainType.GRASS, TerrainType.PLAIN, TerrainType.TUNDRA, TerrainType.GRASS_HILLS, TerrainType.PLAIN_HILLS, TerrainType.TUNDRA_HILLS };
         defaultTiles = Utils.CountTiles(grid, affectedTerrain);
-        int forestTiles = (int)(defaultTiles * _factorWood * 0.5 * (1.5 - 0.5 * (int)humidity));
+        int forestTiles = (int)(defaultTiles * _factorWood * 0.5 * (1.5 - 0.5 * (int)map.Humidity));
         var forestDistribution = new TileDistribution(0.05f, 0.5f, 0.05f, 0.4f);
         Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.FOREST, affectedTerrain, forestTiles, forestDistribution);
 
         // generate JUNGLE tiles
         affectedTerrain = new List<TerrainType>() { TerrainType.GRASS, TerrainType.PLAIN, TerrainType.GRASS_HILLS, TerrainType.PLAIN_HILLS };
         defaultTiles = Utils.CountTiles(grid, affectedTerrain);
-        int jungleTiles = (int)(defaultTiles * _factorWood * 0.5 * (1.5 - 0.5 * (int)humidity));
+        int jungleTiles = (int)(defaultTiles * _factorWood * 0.5 * (1.5 - 0.5 * (int)map.Humidity));
         var jungleDistribution = new TileDistribution(0.0f, 0.0f, 0.2f, 0.8f);
         Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.JUNGLE, affectedTerrain, jungleTiles, jungleDistribution);
 
@@ -117,11 +117,15 @@ internal class DefaultShaper : IMapLandscapeShaper
         }
         map.LandscapeMap = landscapeTiles;
         map.RiverMap = riverTiles;
+        map.TerrainMap = Utils.ConvertGrid(grid);
 
         // generate river directions
         foreach (var river in generatedRivers)
         {
-            var res = Utils.GenerateRiverTileDirections(river);
+            foreach (var direction in Utils.GenerateRiverTileDirections(river))
+            {
+                map.RiverTileDirections.Add(direction.Key, direction.Value);
+            }
         }
     }
 
@@ -156,9 +160,9 @@ internal class DefaultShaper : IMapLandscapeShaper
             var mountain = mountains[mountainIndex];
             var mountainCoords = mountain.coordinates.ToOffset();
             // check if mountain position is possible
-            if (grid[mountainCoords.y * columns + mountainCoords.x].river != RiverType.NONE)
+            if (grid[mountainCoords.y * columns + mountainCoords.x].river == RiverType.NONE)
             {
-                var riverPath = Utils.CreateRiverPath(grid, rows, columns, mountain, mountain.distanceToRiver + 2);
+                var riverPath = Utils.CreateRiverPath(grid, rows, columns, mountain, mountain.distanceToWater + 2);
                 // forbid river if it is too short
                 if(riverPath.Count >= minRiverLength)
                 {

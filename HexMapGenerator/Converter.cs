@@ -17,17 +17,17 @@ public class Converter
         };
 
         // add all layers
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 3; i++)
         {
             List<int> data = new();
             switch (i)
             {
                 case 0:
                     data = map.TerrainMap; break;
-                /*case 1:
+                case 1:
                     data = map.LandscapeMap; break;
                 case 2:
-                    data = map.River; break;*/
+                    data = map.RiverMap; break;
             }
 
             TileLayer layer = new()
