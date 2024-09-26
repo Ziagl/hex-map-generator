@@ -1,4 +1,4 @@
-﻿namespace HexMapGenerator.enums;
+﻿namespace HexMapGenerator.Enums;
 
 public enum LandscapeType
 {

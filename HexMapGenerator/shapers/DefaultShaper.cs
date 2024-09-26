@@ -1,7 +1,7 @@
 ﻿using com.hexagonsimulations.Geometry.Hex;
-using HexMapGenerator.enums;
-using HexMapGenerator.interfaces;
-using HexMapGenerator.models;
+using HexMapGenerator.Enums;
+using HexMapGenerator.Interfaces;
+using HexMapGenerator.Models;
 
 namespace HexMapGenerator.shapers;
 
@@ -29,7 +29,7 @@ internal class DefaultShaper : IMapLandscapeShaper
                 int index = row * map.Columns + column;
                 grid[index] = new Tile
                 {
-                    coordinates = new OffsetCoordinates(column, row).ToCubic(),
+                    Coordinates = new OffsetCoordinates(column, row).ToCubic(),
                     terrain = (TerrainType)map.TerrainMap.ElementAt(index),
                     landscape = LandscapeType.NONE,
                     river = RiverType.NONE,
@@ -38,7 +38,7 @@ internal class DefaultShaper : IMapLandscapeShaper
         }
 
         // how many rivers should we create? depending on map size
-        int riverCount = (int)(factorRiver * (int)map.Size + 1);
+        int riverCount = (int)(factorRiver * ((int)map.Size + 1));
         int minRiverLength = 3;
 
         // generate rivers
@@ -142,14 +142,14 @@ internal class DefaultShaper : IMapLandscapeShaper
                 // for a good river there should be at least 2 tiles between mountain and edge
                 if(!Utils.IsTileAtEdge(grid, rows, columns, tile, 2))
                 {
-                    mountains.Add(new Mountain() { coordinates = tile.coordinates });
+                    mountains.Add(new Mountain() { Coordinates = tile.Coordinates });
                 }
             }
         }
         // compute distance to water for each mountain
         foreach(var mountain in mountains)
         {
-            var data = Utils.FindNearestTile(grid, rows, columns, mountain.coordinates, Math.Max(rows, columns), TerrainType.SHALLOW_WATER);
+            var data = Utils.FindNearestTile(grid, rows, columns, mountain.Coordinates, Math.Max(rows, columns), TerrainType.SHALLOW_WATER);
             mountain.distanceToWater = data.distance;
         }
         List<List<Tile>> generatedRivers = new();
@@ -158,7 +158,7 @@ internal class DefaultShaper : IMapLandscapeShaper
         {
             int mountainIndex = this._random.Next(0, mountains.Count);
             var mountain = mountains[mountainIndex];
-            var mountainCoords = mountain.coordinates.ToOffset();
+            var mountainCoords = mountain.Coordinates.ToOffset();
             // check if mountain position is possible
             if (grid[mountainCoords.y * columns + mountainCoords.x].river == RiverType.NONE)
             {
@@ -177,7 +177,7 @@ internal class DefaultShaper : IMapLandscapeShaper
                         if (tile.river == RiverType.NONE)
                         {
                             // compute distance to river
-                            int distance = Utils.DistanceToRiver(grid, rows, columns, tile.coordinates, 4);
+                            int distance = Utils.DistanceToRiver(grid, rows, columns, tile.Coordinates, 4);
                             if (distance > 0 && distance <= riverbed)
                             {
                                 tile.river = RiverType.RIVERAREA;
@@ -204,13 +204,13 @@ internal class DefaultShaper : IMapLandscapeShaper
         foreach (var tile in grid)
         {
             int chance = 0;
-            if (tile.coordinates.r == 0 || tile.coordinates.r == rows - 1)
+            if (tile.Coordinates.r == 0 || tile.Coordinates.r == rows - 1)
             {
                 chance = 10;
             }
             if ((int)temperature < (int)MapTemperature.HOT)
             {
-                if (tile.coordinates.r == 1 || tile.coordinates.r == rows - 2)
+                if (tile.Coordinates.r == 1 || tile.Coordinates.r == rows - 2)
                 {
                     if ((int)temperature < (int)MapTemperature.NORMAL)
                     {
@@ -224,7 +224,7 @@ internal class DefaultShaper : IMapLandscapeShaper
             }
             if ((int)temperature < (int)MapTemperature.NORMAL)
             {
-                if (tile.coordinates.r == 2 || tile.coordinates.r == rows - 3)
+                if (tile.Coordinates.r == 2 || tile.Coordinates.r == rows - 3)
                 {
                     chance = 4;
                 }
@@ -257,11 +257,11 @@ internal class DefaultShaper : IMapLandscapeShaper
         foreach (var tile in grid)
         {
             int chance = 0;
-            if (tile.coordinates.r == 1 || tile.coordinates.r == rows - 2)
+            if (tile.Coordinates.r == 1 || tile.Coordinates.r == rows - 2)
             {
                 chance = 10;
             }
-            if(tile.coordinates.r == 2 || tile.coordinates.r == rows -3)
+            if(tile.Coordinates.r == 2 || tile.Coordinates.r == rows -3)
             {
                 switch(temperature)
                 {
@@ -278,11 +278,11 @@ internal class DefaultShaper : IMapLandscapeShaper
             }
             if ((int)temperature < (int)MapTemperature.NORMAL)
             {
-                if (tile.coordinates.r == 3 || tile.coordinates.r == rows - 4)
+                if (tile.Coordinates.r == 3 || tile.Coordinates.r == rows - 4)
                 {
                     chance = 6;
                 }
-                if (tile.coordinates.r == 4 || tile.coordinates.r == rows - 5)
+                if (tile.Coordinates.r == 4 || tile.Coordinates.r == rows - 5)
                 {
                     chance = 3;
                 }

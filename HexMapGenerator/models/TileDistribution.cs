@@ -1,4 +1,4 @@
-﻿namespace HexMapGenerator.models;
+﻿namespace HexMapGenerator.Models;
 
 internal class TileDistribution
 {

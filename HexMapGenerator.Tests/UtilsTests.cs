@@ -1,7 +1,7 @@
 using com.hexagonsimulations.Geometry.Hex;
 using com.hexagonsimulations.Geometry.Hex.Enums;
-using HexMapGenerator.enums;
-using HexMapGenerator.models;
+using HexMapGenerator.Enums;
+using HexMapGenerator.Models;
 
 namespace HexMapGenerator.Tests;
 
@@ -78,7 +78,7 @@ public class UtilsTests
         var data = Utils.FindNearestTile(grid, 3, 3, new CubeCoordinates(0, 2, -2), 3, TerrainType.SHALLOW_WATER);
         Assert.True(data.distance > 0);
         Assert.NotNull(data.destinationTile);
-        Assert.True(data.destinationTile.coordinates == new CubeCoordinates(0, 0, 0));
+        Assert.True(data.destinationTile.Coordinates == new CubeCoordinates(0, 0, 0));
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class UtilsTests
         Assert.Null(tile);
         tile = Utils.NeighborOf(grid, 3, 3, new CubeCoordinates(0, 0, 0), Direction.E);
         Assert.NotNull(tile);
-        Assert.True(new CubeCoordinates(1, 0, -1) == tile!.coordinates);
+        Assert.True(new CubeCoordinates(1, 0, -1) == tile!.Coordinates);
     }
 
     [Fact]
@@ -110,9 +110,11 @@ public class UtilsTests
     {
         var grid = Enumerable.Repeat(new Tile(), 9).ToList();
         Utils.InitializeHexGrid(grid, 3, 3, TerrainType.PLAIN);
-        var neighbors = Utils.Neighbors(grid, 3, 3, new CubeCoordinates(0, 0, 0));
+        var baseTile = new Tile() { Coordinates = new CubeCoordinates(0, 0, 0) };
+        var neighbors = baseTile.Neighbors(grid.Cast<HexTile>().ToList(), 3, 3);
         Assert.Equal(2, neighbors.Count);
-        neighbors = Utils.Neighbors(grid, 3, 3, new CubeCoordinates(1, 1, -2));
+        baseTile = new Tile() { Coordinates = new CubeCoordinates(1, 1,-2) };
+        neighbors = baseTile.Neighbors(grid.Cast<HexTile>().ToList(), 3, 3);
         Assert.Equal(6, neighbors.Count);
     }
 
@@ -122,27 +124,27 @@ public class UtilsTests
         int mapSize = 8;
         var grid = Enumerable.Repeat(new Tile(), mapSize * mapSize).ToList();
         Utils.InitializeExampleHexGrid(grid, mapSize, mapSize, exampleMapEasy);
-        var mountain = new Mountain() { coordinates = mountainCoordinateEasy };
-        int distanceToWater = Utils.FindNearestTile(grid, mapSize, mapSize, mountain.coordinates, mapSize, TerrainType.SHALLOW_WATER).distance;
+        var mountain = new Mountain() { Coordinates = mountainCoordinateEasy };
+        int distanceToWater = Utils.FindNearestTile(grid, mapSize, mapSize, mountain.Coordinates, mapSize, TerrainType.SHALLOW_WATER).distance;
         Assert.True(distanceToWater > 0);
         var path = Utils.CreateRiverPath(grid, mapSize, mapSize, mountain, distanceToWater);
         Assert.True(path.Count > 0);
     }
 
     [Fact]
-    public void TestFindComminTile()
+    public void TestFindCommonTile()
     {
-        List<Tile> array1 = new() { new Tile() { coordinates = new CubeCoordinates(0, 0, 0) },
-                                    new Tile() { coordinates = new CubeCoordinates(1, 0,-1) },
-                                    new Tile() { coordinates = new CubeCoordinates(0, 1,-1) },
-                                    new Tile() { coordinates = new CubeCoordinates(1, 1,-2) } };
-        List<Tile> array2 = new() { new Tile() { coordinates = new CubeCoordinates(0, 0, 0) },
-                                    new Tile() { coordinates = new CubeCoordinates(1, 0,-1) },
-                                    new Tile() { coordinates = new CubeCoordinates(2, 0,-2) }};
-        List<Tile> array3 = new() { new Tile() { coordinates = new CubeCoordinates(0, 0, 0) },
-                                    new Tile() { coordinates = new CubeCoordinates(0, 1,-1) },
-                                    new Tile() { coordinates = new CubeCoordinates(-1, 2,-1) },
-                                    new Tile() { coordinates = new CubeCoordinates(-1, 3,-2) }};
+        List<Tile> array1 = new() { new Tile() { Coordinates = new CubeCoordinates(0, 0, 0) },
+                                    new Tile() { Coordinates = new CubeCoordinates(1, 0,-1) },
+                                    new Tile() { Coordinates = new CubeCoordinates(0, 1,-1) } };
+        List<Tile> array2 = new() { new Tile() { Coordinates = new CubeCoordinates(0, 0, 0) },
+                                    new Tile() { Coordinates = new CubeCoordinates(1, 1,-2) },
+                                    new Tile() { Coordinates = new CubeCoordinates(1, 0,-1) },
+                                    new Tile() { Coordinates = new CubeCoordinates(2, 0,-2) }};
+        List<Tile> array3 = new() { new Tile() { Coordinates = new CubeCoordinates(0, 0, 0) },
+                                    new Tile() { Coordinates = new CubeCoordinates(0, 1,-1) },
+                                    new Tile() { Coordinates = new CubeCoordinates(-1, 2,-1) },
+                                    new Tile() { Coordinates = new CubeCoordinates(-1, 3,-2) }};
         var common = Utils.FindCommonTiles(new List<List<Tile>> { array1, array2 });
         Assert.Equal(2, common.Count);
         common = Utils.FindCommonTiles(new List<List<Tile>> { array1, array3 });

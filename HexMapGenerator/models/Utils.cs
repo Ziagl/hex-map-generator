@@ -1,13 +1,12 @@
 ﻿using com.hexagonsimulations.Geometry.Hex;
 using com.hexagonsimulations.Geometry.Hex.Enums;
-using HexMapGenerator.enums;
-using System;
+using HexMapGenerator.Enums;
 using System.Data;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("HexMapGenerator.Tests")]
 
-namespace HexMapGenerator.models;
+namespace HexMapGenerator.Models;
 
 internal class Utils
 {
@@ -93,7 +92,7 @@ internal class Utils
             totalElements += i * 6;
         }
         // compute spiral and compare with total elements
-        var spiral = tile.coordinates.SpiralAroundInward(distance, Direction.W);
+        var spiral = tile.Coordinates.SpiralAroundInward(distance, Direction.W);
         int counter = 0;
         foreach(var coordinate in spiral)
         {
@@ -115,7 +114,7 @@ internal class Utils
             {
                 grid[row * columns + column] = new Tile
                 {
-                    coordinates = new OffsetCoordinates(column, row).ToCubic(),
+                    Coordinates = new OffsetCoordinates(column, row).ToCubic(),
                     terrain = type,
                 };
             }
@@ -132,7 +131,7 @@ internal class Utils
                 int index = row * columns + column;
                 grid[index] = new Tile
                 {
-                    coordinates = new OffsetCoordinates(column, row).ToCubic(),
+                    Coordinates = new OffsetCoordinates(column, row).ToCubic(),
                     terrain = (TerrainType)map[index],
                 };
             }
@@ -253,29 +252,11 @@ internal class Utils
         return grid[coord.y * columns + coord.x];
     }
 
-    // get all neighbors of given grid and coordinate
-    internal static List<Tile> Neighbors(List<Tile> grid, int rows, int columns, CubeCoordinates coordinates)
-    {
-        List<Tile> neighbors = new();
-
-        foreach (var neighborCoordinates in coordinates.Neighbors())
-        {
-            var coord = neighborCoordinates.ToOffset();
-            if (coord.x < 0 || coord.x >= columns || coord.y < 0 || coord.y >= rows)
-            {
-                continue;
-            }
-            neighbors.Add(grid[coord.y * columns + coord.x]);
-        }
-
-        return neighbors;
-    }
-
     // returns a random neighbor of given grid and coordinate
-    internal static List<Tile> RandomNeighbors(List<Tile> grid, int rows, int columns, CubeCoordinates coordinates)
+    internal static List<Tile> RandomNeighbors(List<Tile> grid, int rows, int columns, Tile baseTile)
     {
         List<Tile> neighbors = new();
-        var allNeighbors = Utils.Neighbors(grid, rows, columns, coordinates);
+        var allNeighbors = baseTile.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns).Cast<Tile>().ToList();
         var random = new Random();
 
         // randomly select neighbors
@@ -317,7 +298,7 @@ internal class Utils
                 continue;
             }
 
-            var neighbors = Utils.Neighbors(grid, rows, columns, tile.coordinates);
+            var neighbors = tile.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns).Cast<Tile>().ToList();
             int continentCounter = 0;
             foreach(var neighbor in neighbors)
             {
@@ -346,7 +327,7 @@ internal class Utils
             List<Tile> additionalPlainTiles = new();
             foreach (var tile in plainTiles)
             {
-                var neighbors = Utils.RandomNeighbors(grid, rows, columns, tile.coordinates);
+                var neighbors = Utils.RandomNeighbors(grid, rows, columns, tile);
                 foreach (var neighbor in neighbors)
                 {
                     if (neighbor.terrain != TerrainType.PLAIN &&
@@ -374,7 +355,7 @@ internal class Utils
             List<Tile> addedLakeTiles = new();
             lakeTiles.ForEach(tile =>
             {
-                var neighbors = Utils.RandomNeighbors(grid, rows, columns, tile.coordinates);
+                var neighbors = Utils.RandomNeighbors(grid, rows, columns, tile);
                 neighbors.ForEach(neighbor =>
                 {
                     if (neighbor.terrain != TerrainType.SHALLOW_WATER &&
@@ -402,7 +383,7 @@ internal class Utils
             List<Tile> addedMountainRangesTiles = new();
             mountainRangesTiles.ForEach(tile =>
             {
-                var neighbors = Utils.RandomNeighbors(grid, rows, columns, tile.coordinates);
+                var neighbors = Utils.RandomNeighbors(grid, rows, columns, tile);
                 neighbors.ForEach(neighbor =>
                 {
                     if (neighbor.terrain != TerrainType.SHALLOW_WATER &&
@@ -430,7 +411,7 @@ internal class Utils
             var tile = Utils.RandomTile(grid, rows, columns);
             if (tile != null && tile.terrain == TerrainType.PLAIN_HILLS)
             {
-                var neighbors = Utils.Neighbors(grid, rows, columns, tile.coordinates);
+                var neighbors = tile.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns).Cast<Tile>().ToList();
                 // if all neighbors are hill tiles or water -> tile is mountain tile
                 if (neighbors.All(neighbor => neighbor.terrain == TerrainType.PLAIN_HILLS ||
                                               neighbor.terrain == TerrainType.MOUNTAIN ||
@@ -475,7 +456,7 @@ internal class Utils
         {
             if (tile.terrain == TerrainType.SHALLOW_WATER)
             {
-                var neighbors = Utils.Neighbors(grid, rows, columns, tile.coordinates);
+                var neighbors = tile.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns).Cast<Tile>().ToList();
                 if (neighbors.All(neighbor => neighbor.terrain == TerrainType.DEEP_WATER || neighbor.terrain == TerrainType.SHALLOW_WATER))
                 {
                     tile.terrain = TerrainType.DEEP_WATER;
@@ -613,7 +594,7 @@ internal class Utils
     {
         List<Tile> riverPath = new();
         Random random = new();
-        var mountainCoords = mountain.coordinates.ToOffset();
+        var mountainCoords = mountain.Coordinates.ToOffset();
         var mountainTile = grid[mountainCoords.y * columns + mountainCoords.x];
         List<Tile> openList = new();
         List<Tile> closedList = new();
@@ -630,7 +611,7 @@ internal class Utils
                 openList.Clear();
             }
             // get neighbors and add neighbors to open list
-            var neighbors = Utils.Neighbors(grid, rows, columns, nextTile.coordinates);
+            var neighbors = nextTile.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns).Cast<Tile>().ToList();
             foreach (var neighbor in neighbors)
             {
                 if (success == false)
@@ -662,7 +643,7 @@ internal class Utils
                 {
                     for (int i = 0; i < openList.Count; ++i)
                     {
-                        var distanceToMountain = mountainTile.coordinates.DistanceTo(openList[i].coordinates);
+                        var distanceToMountain = mountainTile.Coordinates.DistanceTo(openList[i].Coordinates);
                         if (distanceToMountain > lastDistance)
                         {
                             possibleTiles.Add(openList[i]);
@@ -681,7 +662,7 @@ internal class Utils
                     {
                         // option 1: random tile
                         nextTile = possibleTiles[random.Next(0, possibleTiles.Count)];
-                        lastDistance = mountainTile.coordinates.DistanceTo(nextTile.coordinates);
+                        lastDistance = mountainTile.Coordinates.DistanceTo(nextTile.Coordinates);
                     }
                     else
                     {
@@ -689,7 +670,7 @@ internal class Utils
                         List<(Tile tile, int distanceToWater)> sortedTiles = new();
                         foreach (var tile in possibleTiles)
                         {
-                            var data = Utils.FindNearestTile(grid, rows, columns, tile.coordinates, 20, TerrainType.SHALLOW_WATER);
+                            var data = Utils.FindNearestTile(grid, rows, columns, tile.Coordinates, 20, TerrainType.SHALLOW_WATER);
                             if (data.destinationTile is not null)
                             {
                                 sortedTiles.Add((tile, data.distance));
@@ -698,7 +679,7 @@ internal class Utils
                         sortedTiles.Sort((a, b) => a.distanceToWater - b.distanceToWater);
                         nextTile = sortedTiles.First().tile;
                     }
-                    lastDistance = mountainTile.coordinates.DistanceTo(nextTile.coordinates);
+                    lastDistance = mountainTile.Coordinates.DistanceTo(nextTile.Coordinates);
                     riverPath.Add(nextTile);
                 }
                 else
@@ -772,10 +753,10 @@ internal class Utils
     {
         // so there is now a path of single tiles, append it for a second tile
         List<List<Tile>> riverTileNeighbors = new();
-        var mountainTileNeighbors = Utils.Neighbors(grid, rows, columns, mountain.coordinates);
+        var mountainTileNeighbors = mountain.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns).Cast<Tile>().ToList();
         foreach(var tile in riverPath)
         {
-            riverTileNeighbors.Add(Utils.Neighbors(grid, rows, columns, tile.coordinates));
+            riverTileNeighbors.Add(tile.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns).Cast<Tile>().ToList());
         }
         // special case river path of 1 tile
         if (riverPath.Count == 1)
@@ -815,13 +796,13 @@ internal class Utils
                 int tryCount = 0;
                 do
                 {
-                    var otherRiverBankNeighbors = Utils.Neighbors(grid, rows, columns, otherRiverBank[^1].coordinates);
+                    var otherRiverBankNeighbors = otherRiverBank[^1].Neighbors(grid.Cast<HexTile>().ToList(), rows, columns);
                     // filter out all river tiles
                     otherRiverBankNeighbors = otherRiverBankNeighbors.Except(riverPath).ToList();
                     sharedTiles = Utils.FindCommonTiles(new List<List<Tile>>() { sharedTiles, riverPath });
                     foreach(var sharedTile in sharedTiles)
                     {
-                        if(sharedTile.terrain != TerrainType.SHALLOW_WATER && sharedTile.coordinates != mountain.coordinates)
+                        if(sharedTile.terrain != TerrainType.SHALLOW_WATER && sharedTile.Coordinates != mountain.Coordinates)
                         {
                             if(!otherRiverBank.Contains(sharedTile))
                             {
@@ -856,7 +837,7 @@ internal class Utils
                 if (riverTiles[i].river != riverTiles[j].river)
                 {
                     List<Direction> neighborDirections = new();
-                    var key = riverTiles[i].coordinates;
+                    var key = riverTiles[i].Coordinates;
                     if (riverDirections.ContainsKey(key))
                     {
                         neighborDirections = riverDirections[key];
@@ -876,9 +857,9 @@ internal class Utils
     // detects if two tiles are neighbors and returns the direction from target point of view, undefined if not a neighbor
     internal static Direction? DetectNeighborhood(Tile source, Tile target)
     {
-        int q = target.coordinates.q - source.coordinates.q;
-        int r = target.coordinates.r - source.coordinates.r;
-        int s = target.coordinates.s - source.coordinates.s;
+        int q = target.Coordinates.q - source.Coordinates.q;
+        int r = target.Coordinates.r - source.Coordinates.r;
+        int s = target.Coordinates.s - source.Coordinates.s;
         if(q == 1 && r == -1 && s == 0)
         {
             return Direction.NE;

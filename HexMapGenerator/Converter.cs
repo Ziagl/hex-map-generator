@@ -1,4 +1,4 @@
-﻿using HexMapGenerator.models;
+﻿using HexMapGenerator.Models;
 using System.Text.Json;
 
 namespace HexMapGenerator;

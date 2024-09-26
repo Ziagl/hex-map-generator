@@ -1,11 +1,10 @@
 ﻿using com.hexagonsimulations.Geometry.Hex;
-using HexMapGenerator.enums;
+using HexMapGenerator.Enums;
 
-namespace HexMapGenerator.models;
+namespace HexMapGenerator.Models;
 
-public record Tile
+public class Tile : HexTile
 {
-    public CubeCoordinates coordinates = new(0, 0, 0);
     public TerrainType terrain = TerrainType.SHALLOW_WATER;
     public LandscapeType landscape = LandscapeType.NONE;
     public RiverType river = RiverType.NONE;

@@ -1,8 +1,8 @@
-﻿using HexMapGenerator.enums;
-using HexMapGenerator.interfaces;
-using HexMapGenerator.models;
+﻿using HexMapGenerator.Enums;
+using HexMapGenerator.Interfaces;
+using HexMapGenerator.Models;
 
-namespace HexMapGenerator.generators;
+namespace HexMapGenerator.Generators;
 
 internal class SuperContinentGenerator : IMapTerrainGenerator
 {
@@ -36,7 +36,7 @@ internal class SuperContinentGenerator : IMapTerrainGenerator
                 tile = Utils.RandomTile(grid, map.Rows, map.Columns);
                 if (tile is not null)
                 {
-                    var coords = tile.coordinates.ToOffset();
+                    var coords = tile.Coordinates.ToOffset();
                     if (coords.y >= rowBorder &&
                        coords.y < map.Rows - rowBorder &&
                        coords.x >= columnBorder &&

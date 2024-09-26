@@ -1,8 +1,9 @@
-﻿using HexMapGenerator.enums;
-using HexMapGenerator.interfaces;
-using HexMapGenerator.models;
+﻿using com.hexagonsimulations.Geometry.Hex;
+using HexMapGenerator.Enums;
+using HexMapGenerator.Interfaces;
+using HexMapGenerator.Models;
 
-namespace HexMapGenerator.generators;
+namespace HexMapGenerator.Generators;
 
 internal class ContinentsIslandsGenerator : IMapTerrainGenerator
 {
@@ -62,13 +63,13 @@ internal class ContinentsIslandsGenerator : IMapTerrainGenerator
                 List<Tile> addedContinentTilesArray = new();
                 foreach (var tile in continentTilesArray)
                 {
-                    var neighbors = Utils.RandomNeighbors(grid, map.Rows, map.Columns, tile.coordinates);
+                    var neighbors = Utils.RandomNeighbors(grid, map.Rows, map.Columns, tile);
                     foreach (var neighbor in neighbors)
                     {
                         if (neighbor.continentSeed == 0 && landTiles > 0)
                         {
                             // check if an adjacent field is not from another continent (continents should not touch!)
-                            var tileNeighbors = Utils.Neighbors(grid, map.Rows, map.Columns, neighbor.coordinates);
+                            var tileNeighbors = neighbor.Neighbors(grid.Cast<HexTile>().ToList(), map.Rows, map.Columns).Cast<Tile>().ToList();
                             if (tileNeighbors.Any(tileNeighbor => tileNeighbor.continentSeed == continentToExpand) &&
                                !tileNeighbors.Any(tileNeighbor => tileNeighbor.continentSeed != continentToExpand && tileNeighbor.continentSeed >= minContinentSeed))
                             {
@@ -100,7 +101,7 @@ internal class ContinentsIslandsGenerator : IMapTerrainGenerator
             var tile = Utils.RandomTile(grid, map.Rows, map.Columns);
             if (tile.continentSeed == 0)
             {
-                var tileNeighbors = Utils.Neighbors(grid, map.Rows, map.Columns, tile.coordinates);
+                var tileNeighbors = tile.Neighbors(grid.Cast<HexTile>().ToList(), map.Rows, map.Columns).Cast<Tile>().ToList();
                 continentCounter = 0;
                 List<int> continentDistinguisher = new();
                 foreach (var neighbor in tileNeighbors)
@@ -113,7 +114,7 @@ internal class ContinentsIslandsGenerator : IMapTerrainGenerator
                 }
                 if (continentCounter > 1)
                 {
-                    var neighbos = Utils.RandomNeighbors(grid, map.Rows, map.Columns, tile.coordinates);
+                    var neighbos = Utils.RandomNeighbors(grid, map.Rows, map.Columns, tile);
                     foreach (var neighbor in neighbos)
                     {
                         if (neighbor.continentSeed >= minContinentSeed)

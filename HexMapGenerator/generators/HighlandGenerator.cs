@@ -1,8 +1,8 @@
-﻿using HexMapGenerator.enums;
-using HexMapGenerator.interfaces;
-using HexMapGenerator.models;
+﻿using HexMapGenerator.Enums;
+using HexMapGenerator.Interfaces;
+using HexMapGenerator.Models;
 
-namespace HexMapGenerator.generators;
+namespace HexMapGenerator.Generators;
 
 internal class HighlandGenerator : IMapTerrainGenerator
 {

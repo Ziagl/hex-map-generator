@@ -1,7 +1,7 @@
-﻿using HexMapGenerator.enums;
-using HexMapGenerator.generators;
-using HexMapGenerator.interfaces;
-using HexMapGenerator.models;
+﻿using HexMapGenerator.Enums;
+using HexMapGenerator.Generators;
+using HexMapGenerator.Interfaces;
+using HexMapGenerator.Models;
 using HexMapGenerator.shapers;
 
 namespace HexMapGenerator;
@@ -37,7 +37,7 @@ public class Generator
         _map.Rows = mapSize.rows;
         _map.Columns = mapSize.columns;
 
-        IMapTerrainGenerator generator = null;
+        IMapTerrainGenerator generator = new RandomGenerator();
         IMapLandscapeShaper shaper = new DefaultShaper();
 
         switch (type)
@@ -72,11 +72,6 @@ public class Generator
             case MapType.RANDOM:
                 generator = new RandomGenerator();
                 break;
-        }
-
-        if (generator == null)
-        {
-            generator = new RandomGenerator();
         }
 
         // generate landmass and water

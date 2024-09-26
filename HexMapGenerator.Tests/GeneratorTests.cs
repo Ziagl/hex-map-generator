@@ -1,4 +1,4 @@
-﻿using HexMapGenerator.enums;
+﻿using HexMapGenerator.Enums;
 
 namespace HexMapGenerator.Tests;
 

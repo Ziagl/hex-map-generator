@@ -1,8 +1,8 @@
 ﻿using com.hexagonsimulations.Geometry.Hex;
 using com.hexagonsimulations.Geometry.Hex.Enums;
-using HexMapGenerator.enums;
+using HexMapGenerator.Enums;
 
-namespace HexMapGenerator.models;
+namespace HexMapGenerator.Models;
 
 public record MapData
 {

@@ -1,6 +1,6 @@
-﻿using HexMapGenerator.models;
+﻿using HexMapGenerator.Models;
 
-namespace HexMapGenerator.interfaces;
+namespace HexMapGenerator.Interfaces;
 
 internal interface IMapLandscapeShaper
 {
