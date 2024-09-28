@@ -1,4 +1,5 @@
-﻿using HexMapGenerator.Enums;
+﻿using com.hexagonsimulations.Geometry.Hex.Enums;
+using HexMapGenerator.Enums;
 using HexMapGenerator.Generators;
 using HexMapGenerator.Interfaces;
 using HexMapGenerator.Models;
@@ -11,7 +12,7 @@ public class Generator
     private readonly string[] _layers = { "terrain", "landscape", "river" };
     private readonly int _riverbed = 3;
     private MapData _map;
-    private Dictionary<string, string[]/*Direction*/> _mapRiverTileDirections;
+    private Dictionary<string, List<Direction>> _mapRiverTileDirections;
 
     public Generator()
     {

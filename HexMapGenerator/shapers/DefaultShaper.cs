@@ -133,6 +133,11 @@ internal class DefaultShaper : IMapLandscapeShaper
     // river no other river can be added to map
     private List<List<Tile>> ComputeRivers(List<Tile> grid, int rows, int columns, int rivers, int minRiverLength, int riverbed)
     {
+        //early exit
+        if(rivers == 0)
+        {
+            return new();
+        }
         // create a list of mountains
         List<Mountain> mountains = new();
         foreach(var tile in grid)
