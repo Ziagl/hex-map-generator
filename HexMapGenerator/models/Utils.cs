@@ -60,12 +60,11 @@ internal class Utils
 
     public static void Shuffle<T>(List<T> list)
     {
-        Random random = new();
         int n = list.Count;
         while (n > 1)
         {
             n--;
-            int k = random.Next(n + 1);
+            int k = Generator.random.Next(n + 1);
             T value = list[k];
             list[k] = list[n];
             list[n] = value;
@@ -141,9 +140,8 @@ internal class Utils
     // returns a random tile of given grid
     internal static Tile RandomTile(List<Tile> grid, int rows, int columns)
     {
-        var random = new Random();
-        int row = random.Next(0, rows);
-        int column = random.Next(0, columns);
+        int row = Generator.random.Next(0, rows);
+        int column = Generator.random.Next(0, columns);
         return grid[row * columns + column];
     }
 
@@ -257,12 +255,11 @@ internal class Utils
     {
         List<Tile> neighbors = new();
         var allNeighbors = baseTile.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns).Cast<Tile>().ToList();
-        var random = new Random();
 
         // randomly select neighbors
         foreach(var neighbor in allNeighbors)
         {
-            if (random.Next(0, 2) == 0)
+            if (Generator.random.Next(0, 2) == 0)
             {
                 neighbors.Add(neighbor);
             }
@@ -490,19 +487,17 @@ internal class Utils
     // returns a random tile of given grid
     internal static Tile RandomTileOfRow(List<Tile> grid, int rows, int columns, int row)
     {
-        Random random = new();
         if(row < 0 || row > rows)
         {
             row = 0;
         }
-        int column = random.Next(0, columns);
+        int column = Generator.random.Next(0, columns);
         return grid[row * columns + column];
     }
 
     // converts given number of plain terrain tiles to given tile type
     internal static void AddRandomTerrain(List<Tile> grid, int rows, int columns, TerrainType typeFlat, TerrainType typeHill, int count, TileDistribution distribution)
     {
-        Random random = new();
         int loopMax = Utils.MAXLOOPS;
         var rowsPerZone = Utils.ClimateZonesSeparation(rows);
         List<int> tilesPerZone = new();
@@ -516,7 +511,7 @@ internal class Utils
             // place tile for current zone
             if (tilesPerZone[currentZone] > 0)
             {
-                int randomRowIndex = random.Next(0, rowsPerZone[currentZone].Count);
+                int randomRowIndex = Generator.random.Next(0, rowsPerZone[currentZone].Count);
                 var tile = Utils.RandomTileOfRow(grid, rows, columns, rowsPerZone[currentZone][randomRowIndex]);
                 if (tile.terrain == TerrainType.PLAIN)
                 {
@@ -550,7 +545,6 @@ internal class Utils
     // adds given landscape type to given terrain tiles
     internal static void AddRandomLandscape(List<Tile> grid, int rows, int columns, LandscapeType type, List<TerrainType> terrains, int count, TileDistribution distribution)
     {
-        Random random = new();
         int loopMax = Utils.MAXLOOPS;
         var rowsPerZone = Utils.ClimateZonesSeparation(rows);
         List<int> tilesPerZone = new();
@@ -564,7 +558,7 @@ internal class Utils
             // place tile for current zone
             if (tilesPerZone[currentZone] > 0)
             {
-                int randomRowIndex = random.Next(0, rowsPerZone[currentZone].Count);
+                int randomRowIndex = Generator.random.Next(0, rowsPerZone[currentZone].Count);
                 var tile = Utils.RandomTileOfRow(grid, rows, columns, rowsPerZone[currentZone][randomRowIndex]);
                 if(terrains.Contains(tile.terrain))
                 {
@@ -593,7 +587,6 @@ internal class Utils
     internal static List<Tile> CreateRiverPath(List<Tile> grid, int rows, int columns, Mountain mountain, int maxLength)
     {
         List<Tile> riverPath = new();
-        Random random = new();
         var mountainCoords = mountain.Coordinates.ToOffset();
         var mountainTile = grid[mountainCoords.y * columns + mountainCoords.x];
         List<Tile> openList = new();
@@ -658,10 +651,10 @@ internal class Utils
                 if (possibleTiles.Count > 0)
                 {
                     // determine next tile
-                    if (random.Next(0, 4) == 0)
+                    if (Generator.random.Next(0, 4) == 0)
                     {
                         // option 1: random tile
-                        nextTile = possibleTiles[random.Next(0, possibleTiles.Count)];
+                        nextTile = possibleTiles[Generator.random.Next(0, possibleTiles.Count)];
                         lastDistance = mountainTile.Coordinates.DistanceTo(nextTile.Coordinates);
                     }
                     else
@@ -780,7 +773,7 @@ internal class Utils
             else
             {
                 // randomly choose one of two neighbors
-                otherRiverBank.Add(localSharedTiles[new Random().Next(0, 2)]);
+                otherRiverBank.Add(localSharedTiles[Generator.random.Next(0, 2)]);
             }
         }
         if (otherRiverBank.Count == 0)

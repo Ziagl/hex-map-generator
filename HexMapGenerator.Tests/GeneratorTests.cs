@@ -105,10 +105,18 @@ public class GeneratorTests
     public void TestSuperContinentGenerator()
     {
         var generator = new Generator();
-        generator.GenerateMap(MapType.SUPER_CONTINENT, MapSize.MEDIUM, MapTemperature.NORMAL, MapHumidity.DRY, 1.0f);
+        generator.GenerateMap(MapType.SUPER_CONTINENT, MapSize.MEDIUM, MapTemperature.NORMAL, MapHumidity.DRY, 0.0f);
         Assert.Equal(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.Equal(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.Equal(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
+        Assert.True(generator.MapData.RiverTileDirections.Count == 0);
+    }
+
+    [Fact]
+    public void TestRiver()
+    {
+        var generator = new Generator(1234);
+        generator.GenerateMap(MapType.SUPER_CONTINENT, MapSize.MEDIUM, MapTemperature.NORMAL, MapHumidity.NORMAL, 2.0f);
         Assert.True(generator.MapData.RiverTileDirections.Count > 0);
     }
 }

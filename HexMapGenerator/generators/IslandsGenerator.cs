@@ -14,8 +14,6 @@ internal class IslandsGenerator : IMapTerrainGenerator
 
     public void Generate(MapData map)
     {
-        var random = new Random();
-
         // create empty grid
         List<Tile> grid = Enumerable.Repeat(new Tile(), map.Rows * map.Columns).ToList();
 
@@ -24,7 +22,7 @@ internal class IslandsGenerator : IMapTerrainGenerator
 
         // 2. add randomly continents
         int landTiles = (int)(grid.Count * this._factorLand);
-        int islandCounter = random.Next(10, 26); // number of islands
+        int islandCounter = Generator.random.Next(10, 26); // number of islands
         // set island seeds to the map with numbering MAXCONTINENTSEED - continentCounter
         Utils.AddRandomContinentSeed(grid, map.Rows, map.Columns, TerrainType.SHALLOW_WATER, islandCounter);
 
@@ -46,7 +44,7 @@ internal class IslandsGenerator : IMapTerrainGenerator
         int minContinentSeed = Utils.MAXCONTINENTSEED - islandCounter + 1;
         do
         {
-            int continentToExpand = random.Next(minContinentSeed, Utils.MAXCONTINENTSEED);
+            int continentToExpand = Generator.random.Next(minContinentSeed, Utils.MAXCONTINENTSEED);
             var continentTilesArray = islandTiles.Find(x => x.key == continentToExpand).value;
             if (continentTilesArray is not null)
             {
@@ -130,7 +128,7 @@ internal class IslandsGenerator : IMapTerrainGenerator
         // 4. add lakes
         waterTiles = (int)(grid.Count * this._factorWater);
         // add randomly lakes
-        int lakeCounter = waterTiles / random.Next(5, 8); // number of lakes (fifth, sixth or seventh of max number of tiles)
+        int lakeCounter = waterTiles / Generator.random.Next(5, 8); // number of lakes (fifth, sixth or seventh of max number of tiles)
         List<Tile> lakeTiles = new();
         Utils.AddRandomTileSeed(grid, map.Rows, map.Columns, lakeTiles, TerrainType.SHALLOW_WATER, TerrainType.PLAIN, lakeCounter, waterTiles);
         // expand lakes
@@ -142,7 +140,7 @@ internal class IslandsGenerator : IMapTerrainGenerator
         int mountainTiles = (int)(grid.Count * this._factorMountain);
         int hillTiles = (int)(grid.Count * this._factorHills);
         hillTiles = hillTiles + mountainTiles; // mountains can only be generated from hills
-        int hillCounter = (int)(hillTiles / random.Next(5, 8)); // number of mountain ranges
+        int hillCounter = (int)(hillTiles / Generator.random.Next(5, 8)); // number of mountain ranges
         List<Tile> mountainRangesTiles = new();
         Utils.AddRandomTileSeed(grid, map.Rows, map.Columns, mountainRangesTiles, TerrainType.PLAIN_HILLS, TerrainType.PLAIN, hillCounter, hillTiles);
 

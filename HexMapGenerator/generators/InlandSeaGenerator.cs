@@ -12,8 +12,6 @@ internal class InlandSeaGenerator : IMapTerrainGenerator
 
     public void Generate(MapData map)
     {
-        var random = new Random();
-
         // create empty grid
         List<Tile> grid = Enumerable.Repeat(new Tile(), map.Rows * map.Columns).ToList();
 
@@ -23,7 +21,7 @@ internal class InlandSeaGenerator : IMapTerrainGenerator
         // 2. add a lake in the middle of map
         int waterTiles = (int)(grid.Count * this._factorWater);
         int tileFactor = waterTiles / 5;
-        int lakeCounter = random.Next(tileFactor / 2, tileFactor + 1); // number of lakes (fifth, sixth or seventh of max number of tiles)
+        int lakeCounter = Generator.random.Next(tileFactor / 2, tileFactor + 1); // number of lakes (fifth, sixth or seventh of max number of tiles)
         List<Tile> lakeTiles = new();
         for(int i = 0; i < lakeCounter; ++i)
         {
@@ -51,7 +49,7 @@ internal class InlandSeaGenerator : IMapTerrainGenerator
                 --loopMax;
             } while (loopMax > 0 && waterTiles > 0);
         }
-        int randomSeeds = random.Next(5, 16);
+        int randomSeeds = Generator.random.Next(5, 16);
         Utils.AddRandomTileSeed(grid, map.Rows, map.Columns, lakeTiles, TerrainType.SHALLOW_WATER, TerrainType.PLAIN, randomSeeds, waterTiles);
 
         // 3. expand lakes
@@ -64,7 +62,7 @@ internal class InlandSeaGenerator : IMapTerrainGenerator
         int mountainTiles = (int)(grid.Count * this._factorMountain);
         int hillTiles = (int)(grid.Count * this._factorHills);
         hillTiles = hillTiles + mountainTiles; // mountains can only be generated from hills
-        int hillCounter = (int)(hillTiles / random.Next(8, 13)); // number of mountain ranges
+        int hillCounter = (int)(hillTiles / Generator.random.Next(8, 13)); // number of mountain ranges
         List<Tile> mountainRangesTiles = new();
         Utils.AddRandomTileSeed(grid, map.Rows, map.Columns, mountainRangesTiles, TerrainType.PLAIN_HILLS, TerrainType.PLAIN, hillCounter, hillTiles);
 

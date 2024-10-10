@@ -11,13 +11,19 @@ public class Generator
 {
     private readonly string[] _layers = { "terrain", "landscape", "river" };
     private readonly int _riverbed = 3;
-    private MapData _map;
-    private Dictionary<string, List<Direction>> _mapRiverTileDirections;
+    private MapData _map = new();
+    private Dictionary<string, List<Direction>> _mapRiverTileDirections= new();
+    internal static Random random = new();
 
     public Generator()
     {
-        this._map = new();
-        this._mapRiverTileDirections = new();
+        // empty generator has no additional usage
+    }
+
+    public Generator(Int32 seed)
+    {
+        // initialize random number generator with provided seed
+        random = new Random(seed);
     }
 
     /// <summary>

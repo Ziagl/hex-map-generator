@@ -8,7 +8,6 @@ internal class RandomGenerator : IMapTerrainGenerator
 {
     public void Generate(MapData map)
     {
-        var random = new Random();
         var terrainTypeRange = Utils.GetMinMaxValues<TerrainType>();
 
         // create empty grid
@@ -16,7 +15,7 @@ internal class RandomGenerator : IMapTerrainGenerator
         
         for (int i = 0; i < grid.Count; ++i)
         {
-            grid[i] = random.Next(terrainTypeRange.min, terrainTypeRange.max + 1);
+            grid[i] = Generator.random.Next(terrainTypeRange.min, terrainTypeRange.max + 1);
         }
 
         map.TerrainMap = grid;

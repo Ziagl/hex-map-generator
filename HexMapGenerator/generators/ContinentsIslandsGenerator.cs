@@ -14,8 +14,6 @@ internal class ContinentsIslandsGenerator : IMapTerrainGenerator
 
     public void Generate(MapData map)
     {
-        var random = new Random();
-
         // create empty grid
         List<Tile> grid = Enumerable.Repeat(new Tile(), map.Rows * map.Columns).ToList();
 
@@ -25,7 +23,7 @@ internal class ContinentsIslandsGenerator : IMapTerrainGenerator
 
         // 2. add randomly continents
         int landTiles = (int)(grid.Count * this._factorLand);
-        int continentCounter = random.Next(6, 12); // number of continents
+        int continentCounter = Generator.random.Next(6, 12); // number of continents
         // set contintent seeds to the map with numbering MAXCONTINENTSEED - continentCounter
         Utils.AddRandomContinentSeed(grid, map.Rows, map.Columns, TerrainType.SHALLOW_WATER, continentCounter);
 
@@ -47,11 +45,11 @@ internal class ContinentsIslandsGenerator : IMapTerrainGenerator
         int minContinentSeed = Utils.MAXCONTINENTSEED - continentCounter + 1;
         do
         {
-            int continentToExpand = random.Next(minContinentSeed, Utils.MAXCONTINENTSEED);
+            int continentToExpand = Generator.random.Next(minContinentSeed, Utils.MAXCONTINENTSEED);
             // to generate islands for each second continent skip expanse by 2/3
             if (continentToExpand % 3 != 0)
             {
-                if (random.Next(0, 3) < 2)
+                if (Generator.random.Next(0, 3) < 2)
                 {
                     continue;
                 }
@@ -139,7 +137,7 @@ internal class ContinentsIslandsGenerator : IMapTerrainGenerator
         // 4. add lakes
         waterTiles = (int)(grid.Count * (this._factorWater * 0.5));
         // add randomly lakes
-        int lakeCounter = waterTiles / random.Next(5, 8); // number of lakes (fifth, sixth or seventh of max number of tiles)
+        int lakeCounter = waterTiles / Generator.random.Next(5, 8); // number of lakes (fifth, sixth or seventh of max number of tiles)
         List<Tile> lakeTiles = new();
         Utils.AddRandomTileSeed(grid, map.Rows, map.Columns, lakeTiles, TerrainType.SHALLOW_WATER, TerrainType.PLAIN, lakeCounter, waterTiles);
         // expand lakes
@@ -151,7 +149,7 @@ internal class ContinentsIslandsGenerator : IMapTerrainGenerator
         int mountainTiles = (int)(grid.Count * this._factorMountain);
         int hillTiles = (int)(grid.Count * this._factorHills);
         hillTiles = hillTiles + mountainTiles; // mountains can only be generated from hills
-        int hillCounter = (int)(hillTiles / random.Next(5, 8)); // number of mountain ranges
+        int hillCounter = (int)(hillTiles / Generator.random.Next(5, 8)); // number of mountain ranges
         List<Tile> mountainRangesTiles = new();
         Utils.AddRandomTileSeed(grid, map.Rows, map.Columns, mountainRangesTiles, TerrainType.PLAIN_HILLS, TerrainType.PLAIN, hillCounter, hillTiles);
 

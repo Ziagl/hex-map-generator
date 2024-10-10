@@ -14,8 +14,6 @@ internal class DefaultShaper : IMapLandscapeShaper
     private readonly float _factorSwamp = 0.05f;
     private readonly float _factorWood = 0.3f;
 
-    private Random _random = new();
-
     public void Generate(MapData map, float factorRiver, int riverBed)
     {
         // create empty grid
@@ -103,7 +101,7 @@ internal class DefaultShaper : IMapLandscapeShaper
         // generate VOLCANO tiles
         affectedTerrain = new List<TerrainType>() { TerrainType.MOUNTAIN };
         defaultTiles = Utils.CountTiles(grid, affectedTerrain);
-        int volcanoTiles = _random.Next(0, Math.Min(10, (int)(defaultTiles / 10)));
+        int volcanoTiles = Generator.random.Next(0, Math.Min(10, (int)(defaultTiles / 10)));
         var volcanoDistribution = new TileDistribution();
         Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.VOLCANO, affectedTerrain, volcanoTiles, volcanoDistribution);
 
@@ -161,7 +159,7 @@ internal class DefaultShaper : IMapLandscapeShaper
         int maxTry = 30;
         do
         {
-            int mountainIndex = this._random.Next(0, mountains.Count);
+            int mountainIndex = Generator.random.Next(0, mountains.Count);
             var mountain = mountains[mountainIndex];
             var mountainCoords = mountain.Coordinates.ToOffset();
             // check if mountain position is possible
@@ -204,8 +202,6 @@ internal class DefaultShaper : IMapLandscapeShaper
     // create snow tiles in polar region
     private void CreateSnowTiles(List<Tile> grid, int rows, MapTemperature temperature)
     {
-        Random random = new();
-
         foreach (var tile in grid)
         {
             int chance = 0;
@@ -235,7 +231,7 @@ internal class DefaultShaper : IMapLandscapeShaper
                 }
             }
 
-            if (chance > 0 && random.Next(0, 10) < chance)
+            if (chance > 0 && Generator.random.Next(0, 10) < chance)
             {
                 switch (tile.terrain)
                 {
@@ -257,8 +253,6 @@ internal class DefaultShaper : IMapLandscapeShaper
     // create snow tiles in polar region
     private void CreateTundraTiles(List<Tile> grid, int rows, MapTemperature temperature)
     {
-        Random random = new();
-
         foreach (var tile in grid)
         {
             int chance = 0;
@@ -293,7 +287,7 @@ internal class DefaultShaper : IMapLandscapeShaper
                 }
             }
 
-            if (chance > 0 && random.Next(0, 10) < chance)
+            if (chance > 0 && Generator.random.Next(0, 10) < chance)
             {
                 switch (tile.terrain)
                 {

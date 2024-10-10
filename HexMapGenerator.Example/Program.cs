@@ -7,7 +7,7 @@ var mapSize = MapSize.SMALL;
 var mapType = MapType.HIGHLAND;
 var mapTemperature = MapTemperature.NORMAL;
 var mapHumidity = MapHumidity.NORMAL;
-float factorRiver = 0.0f;
+float factorRiver = 2.0f;
 
 // converter values
 string imagefile = "tileset.png";
@@ -21,7 +21,7 @@ string transparentColor = "#ffffff";
 
 Console.WriteLine("Generating new map");
 
-var generator = new Generator();
+var generator = new Generator(1234);    // add a seed to get the same map everytime
 generator.GenerateMap(mapType, mapSize, mapTemperature, mapHumidity, factorRiver);
 
 Console.WriteLine(generator.Print());
