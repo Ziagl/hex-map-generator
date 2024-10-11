@@ -799,9 +799,10 @@ internal class Utils
             int maxTry = riverPath.Count * 2;
             int tryCount = 1;
             bool success = false;
+            bool lastRun = false;
+            var otherRiverBankNeighbors = otherRiverBank[^1].Neighbors(grid.Cast<HexTile>().ToList(), rows, columns);
             do
             {
-                var otherRiverBankNeighbors = otherRiverBank[^1].Neighbors(grid.Cast<HexTile>().ToList(), rows, columns);
                 // filter out all river tiles
                 otherRiverBankNeighbors = otherRiverBankNeighbors.Except(riverPath).ToList();
                 sharedTiles.Clear();
@@ -809,9 +810,9 @@ internal class Utils
                 {
                     sharedTiles.AddRange(Utils.FindCommonTiles(new List<List<Tile>>() { neighbors, otherRiverBankNeighbors.Cast<Tile>().ToList() }));
                 }
+                otherRiverBankNeighbors.Clear();
                 foreach (var sharedTile in sharedTiles)
                 {
-                    
                     if(sharedTile.terrain == TerrainType.SHALLOW_WATER)
                     {
                         success = true;
@@ -823,13 +824,17 @@ internal class Utils
                             if (!otherRiverBank.Contains(sharedTile))
                             {
                                 otherRiverBank.Add(sharedTile);
-                            
+                                if (lastRun == false)
+                                {
+                                    otherRiverBankNeighbors.AddRange(sharedTile.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns));
+                                }
                             }
                         }
                     }
                 }
+                lastRun = success;
                 ++tryCount;
-            } while (tryCount < maxTry && success == false);
+            } while (tryCount < maxTry && otherRiverBankNeighbors.Count > 0);
         }
         for(int i = 0; i < otherRiverBank.Count; ++i)
         {
