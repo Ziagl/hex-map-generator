@@ -120,10 +120,8 @@ internal class DefaultShaper : IMapLandscapeShaper
         // generate river directions
         foreach (var river in generatedRivers)
         {
-            foreach (var direction in Utils.GenerateRiverTileDirections(river))
-            {
-                map.RiverTileDirections.Add(direction.Key, direction.Value);
-            }
+            map.RiverTileDirections = map.RiverTileDirections.Concat(Utils.GenerateRiverTileDirections(river))
+                                                             .ToDictionary(dict => dict.Key, dict => dict.Value);
         }
     }
 

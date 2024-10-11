@@ -117,6 +117,10 @@ public class GeneratorTests
     {
         var generator = new Generator(1234);
         generator.GenerateMap(MapType.SUPER_CONTINENT, MapSize.MEDIUM, MapTemperature.NORMAL, MapHumidity.NORMAL, 2.0f);
-        Assert.True(generator.MapData.RiverTileDirections.Count > 0);
+        Assert.True(generator.MapData.RiverTileDirections.Count  > 0);
+        foreach(var directions in generator.MapData.RiverTileDirections)
+        {
+            Assert.True(directions.Value.Count > 0);
+        }
     }
 }

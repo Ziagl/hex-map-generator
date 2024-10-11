@@ -674,6 +674,16 @@ internal class Utils
                     }
                     lastDistance = mountainTile.Coordinates.DistanceTo(nextTile.Coordinates);
                     riverPath.Add(nextTile);
+
+                    // if next tile is on the edge of map -> stop
+                    var offsetCoordinates = nextTile.Coordinates.ToOffset();
+                    if(offsetCoordinates.x == 0 || offsetCoordinates.x == columns - 1 ||
+                        offsetCoordinates.y == 0 || offsetCoordinates.y == rows - 1)
+                    {
+                        // END edge of map reached
+                        closedList.AddRange(openList);
+                        openList.Clear();
+                    }
                 }
                 else
                 {
@@ -742,6 +752,7 @@ internal class Utils
         return commonTiles.ToList();
     }
 
+    // extend computed river path for a second tile thickness
     internal static void ExtendRiverPath(List<Tile> grid, int rows, int columns, Mountain mountain, List<Tile> riverPath)
     {
         // so there is now a path of single tiles, append it for a second tile
@@ -749,7 +760,7 @@ internal class Utils
         var mountainTileNeighbors = mountain.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns).Cast<Tile>().ToList();
         foreach(var tile in riverPath)
         {
-            riverTileNeighbors.Add(tile.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns).Cast<Tile>().ToList());
+            riverTileNeighbors.Add(tile.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns).Except(riverPath).Cast<Tile>().ToList());
         }
         // special case river path of 1 tile
         if (riverPath.Count == 1)
@@ -782,30 +793,43 @@ internal class Utils
         }
         else
         {
-            // for all other tiles in riverPath
-            for(int i = 0; i < riverPath.Count; ++i)
+            var lastRiverPath = riverPath[^1];
+            var lastRiverPathNeighbors = lastRiverPath.Neighbors(grid.Cast<HexTile>().ToList(), rows, columns).Except(riverPath).ToList();
+            
+            int maxTry = riverPath.Count * 2;
+            int tryCount = 1;
+            bool success = false;
+            do
             {
-                int maxTry = 5;
-                int tryCount = 0;
-                do
+                var otherRiverBankNeighbors = otherRiverBank[^1].Neighbors(grid.Cast<HexTile>().ToList(), rows, columns);
+                // filter out all river tiles
+                otherRiverBankNeighbors = otherRiverBankNeighbors.Except(riverPath).ToList();
+                sharedTiles.Clear();
+                foreach (var neighbors in riverTileNeighbors)
                 {
-                    var otherRiverBankNeighbors = otherRiverBank[^1].Neighbors(grid.Cast<HexTile>().ToList(), rows, columns);
-                    // filter out all river tiles
-                    otherRiverBankNeighbors = otherRiverBankNeighbors.Except(riverPath).ToList();
-                    sharedTiles = Utils.FindCommonTiles(new List<List<Tile>>() { sharedTiles, riverPath });
-                    foreach(var sharedTile in sharedTiles)
+                    sharedTiles.AddRange(Utils.FindCommonTiles(new List<List<Tile>>() { neighbors, otherRiverBankNeighbors.Cast<Tile>().ToList() }));
+                }
+                foreach (var sharedTile in sharedTiles)
+                {
+                    
+                    if(sharedTile.terrain == TerrainType.SHALLOW_WATER)
                     {
-                        if(sharedTile.terrain != TerrainType.SHALLOW_WATER && sharedTile.Coordinates != mountain.Coordinates)
+                        success = true;
+                    }
+                    else
+                    {
+                        if (sharedTile.Coordinates != mountain.Coordinates)
                         {
-                            if(!otherRiverBank.Contains(sharedTile))
+                            if (!otherRiverBank.Contains(sharedTile))
                             {
                                 otherRiverBank.Add(sharedTile);
+                            
                             }
                         }
                     }
-                    ++tryCount;
-                } while (tryCount < maxTry);
-            }
+                }
+                ++tryCount;
+            } while (tryCount < maxTry && success == false);
         }
         for(int i = 0; i < otherRiverBank.Count; ++i)
         {
@@ -823,25 +847,22 @@ internal class Utils
         {
             for (int j = 0; j < riverTiles.Count; ++j)
             {
-                if (i == j)
+                if (i == j || riverTiles[i].river == riverTiles[j].river)
                 {
                     continue;
                 }
-                if (riverTiles[i].river != riverTiles[j].river)
+                List<Direction> neighborDirections = new();
+                var key = riverTiles[i].Coordinates;
+                if (riverDirections.ContainsKey(key))
                 {
-                    List<Direction> neighborDirections = new();
-                    var key = riverTiles[i].Coordinates;
-                    if (riverDirections.ContainsKey(key))
-                    {
-                        neighborDirections = riverDirections[key];
-                    }
-                    var direction = DetectNeighborhood(riverTiles[i], riverTiles[j]);
-                    if (direction is not null && !neighborDirections.Contains(direction.Value))
-                    {
-                        neighborDirections.Add(direction.Value);
-                    }
-                    riverDirections[key] = neighborDirections;
+                    neighborDirections = riverDirections[key];
                 }
+                var direction = DetectNeighborhood(riverTiles[i], riverTiles[j]);
+                if (direction is not null && !neighborDirections.Contains(direction.Value))
+                {
+                    neighborDirections.Add(direction.Value);
+                }
+                riverDirections[key] = neighborDirections;
             }
         }
         return riverDirections;
