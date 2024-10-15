@@ -3,7 +3,7 @@
 public enum RiverType
 {
     NONE = 0,
-    RIVERBANK = 1, // other side of river
-    RIVERAREA = 2, // distance around riverbed not other river can be added
-    RIVER = LandscapeType.VOLCANO + 1,
+    RIVERBANK = 99, // other side of river
+    RIVERAREA = 98, // distance around riverbed not other river can be added
+    RIVER = 1,
 }

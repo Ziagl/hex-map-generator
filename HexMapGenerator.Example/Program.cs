@@ -7,7 +7,7 @@ var mapSize = MapSize.SMALL;
 var mapType = MapType.HIGHLAND;
 var mapTemperature = MapTemperature.NORMAL;
 var mapHumidity = MapHumidity.NORMAL;
-float factorRiver = 2.0f;
+float factorRiver = 0.0f;
 
 // converter values
 string imagefile = "tileset.png";
@@ -26,7 +26,7 @@ generator.GenerateMap(mapType, mapSize, mapTemperature, mapHumidity, factorRiver
 
 Console.WriteLine(generator.Print());
 
-var converter = new Converter();
+var converter = new Converter(true);
 string json = converter.GenerateTiledJson(generator.MapData, imagefile, tileWidth, tileHeight, imageWidth, imageHeight, tileCount, tileColumns, transparentColor);
 Console.WriteLine("Json:" + json);
 File.WriteAllText("mapData.json", json);
