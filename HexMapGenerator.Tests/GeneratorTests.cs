@@ -1,6 +1,6 @@
-﻿using HexMapGenerator.Enums;
+﻿using com.hexagonsimulations.HexMapGenerator.Enums;
 
-namespace HexMapGenerator.Tests;
+namespace com.hexagonsimulations.HexMapGenerator.Tests;
 
 public class GeneratorTests
 {

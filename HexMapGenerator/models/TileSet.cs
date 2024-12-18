@@ -1,4 +1,4 @@
-﻿namespace HexMapGenerator.Models;
+﻿namespace com.hexagonsimulations.HexMapGenerator.Models;
 
 public record TileSet
 {

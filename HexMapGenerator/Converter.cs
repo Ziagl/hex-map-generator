@@ -1,8 +1,8 @@
-﻿using HexMapGenerator.Enums;
-using HexMapGenerator.Models;
+﻿using com.hexagonsimulations.HexMapGenerator.Enums;
+using com.hexagonsimulations.HexMapGenerator.Models;
 using System.Text.Json;
 
-namespace HexMapGenerator;
+namespace com.hexagonsimulations.HexMapGenerator;
 
 public class Converter
 {

@@ -1,9 +1,9 @@
 using com.hexagonsimulations.Geometry.Hex;
 using com.hexagonsimulations.Geometry.Hex.Enums;
-using HexMapGenerator.Enums;
-using HexMapGenerator.Models;
+using com.hexagonsimulations.HexMapGenerator.Enums;
+using com.hexagonsimulations.HexMapGenerator.Models;
 
-namespace HexMapGenerator.Tests;
+namespace com.hexagonsimulations.HexMapGenerator.Tests;
 
 public class UtilsTests
 {

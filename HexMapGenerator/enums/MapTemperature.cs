@@ -1,4 +1,4 @@
-﻿namespace HexMapGenerator.Enums;
+﻿namespace com.hexagonsimulations.HexMapGenerator.Enums;
 
 public enum MapTemperature
 {

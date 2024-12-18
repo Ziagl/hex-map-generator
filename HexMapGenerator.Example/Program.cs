@@ -1,6 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using HexMapGenerator;
-using HexMapGenerator.Enums;
+using com.hexagonsimulations.HexMapGenerator;
+using com.hexagonsimulations.HexMapGenerator.Enums;
 
 // generator values
 var mapSize = MapSize.SMALL;

@@ -1,12 +1,12 @@
 ﻿using com.hexagonsimulations.Geometry.Hex;
 using com.hexagonsimulations.Geometry.Hex.Enums;
-using HexMapGenerator.Enums;
+using com.hexagonsimulations.HexMapGenerator.Enums;
 using System.Data;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("HexMapGenerator.Tests")]
 
-namespace HexMapGenerator.Models;
+namespace com.hexagonsimulations.HexMapGenerator.Models;
 
 internal class Utils
 {

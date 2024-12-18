@@ -1,6 +1,6 @@
 ﻿using com.hexagonsimulations.Geometry.Hex;
 
-namespace HexMapGenerator.Models;
+namespace com.hexagonsimulations.HexMapGenerator.Models;
 
 internal class Mountain : HexTile
 {

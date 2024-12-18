@@ -1,6 +1,6 @@
-﻿using HexMapGenerator.Models;
+﻿using com.hexagonsimulations.HexMapGenerator.Models;
 
-namespace HexMapGenerator.Interfaces;
+namespace com.hexagonsimulations.HexMapGenerator.Interfaces;
 
 internal interface IMapTerrainGenerator
 {

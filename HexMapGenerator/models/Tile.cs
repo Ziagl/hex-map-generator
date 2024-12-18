@@ -1,7 +1,7 @@
 ﻿using com.hexagonsimulations.Geometry.Hex;
-using HexMapGenerator.Enums;
+using com.hexagonsimulations.HexMapGenerator.Enums;
 
-namespace HexMapGenerator.Models;
+namespace com.hexagonsimulations.HexMapGenerator.Models;
 
 public class Tile : HexTile
 {

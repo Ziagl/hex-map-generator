@@ -1,11 +1,11 @@
 ﻿using com.hexagonsimulations.Geometry.Hex.Enums;
-using HexMapGenerator.Enums;
-using HexMapGenerator.Generators;
-using HexMapGenerator.Interfaces;
-using HexMapGenerator.Models;
-using HexMapGenerator.shapers;
+using com.hexagonsimulations.HexMapGenerator.Enums;
+using com.hexagonsimulations.HexMapGenerator.Generators;
+using com.hexagonsimulations.HexMapGenerator.Interfaces;
+using com.hexagonsimulations.HexMapGenerator.Models;
+using com.hexagonsimulations.HexMapGenerator.shapers;
 
-namespace HexMapGenerator;
+namespace com.hexagonsimulations.HexMapGenerator;
 
 public class Generator
 {

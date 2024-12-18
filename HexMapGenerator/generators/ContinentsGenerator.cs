@@ -1,9 +1,9 @@
 ﻿using com.hexagonsimulations.Geometry.Hex;
-using HexMapGenerator.Enums;
-using HexMapGenerator.Interfaces;
-using HexMapGenerator.Models;
+using com.hexagonsimulations.HexMapGenerator.Enums;
+using com.hexagonsimulations.HexMapGenerator.Interfaces;
+using com.hexagonsimulations.HexMapGenerator.Models;
 
-namespace HexMapGenerator.Generators;
+namespace com.hexagonsimulations.HexMapGenerator.Generators;
 
 internal class ContinentsGenerator : IMapTerrainGenerator
 {
