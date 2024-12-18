@@ -1,124 +1,124 @@
-using com.hexagonsimulations.Geometry.Hex;
+﻿using com.hexagonsimulations.Geometry.Hex;
 using com.hexagonsimulations.Geometry.Hex.Enums;
 using com.hexagonsimulations.HexMapGenerator.Enums;
 using com.hexagonsimulations.HexMapGenerator.Models;
 
 namespace com.hexagonsimulations.HexMapGenerator.Tests;
 
-public class UtilsTests
+[TestClass]
+public sealed class UtilsTests
 {
     private List<int> exampleMapEasy = new() {
-        2, 2, 2, 2, 2, 2, 2, 2, 
-        2, 3, 4, 4, 3, 3, 3, 2, 
-        2, 3, 4, 13, 4, 3, 3, 2, 
-        2, 3, 4, 4, 3, 3, 3, 2, 
-        2, 3, 3, 3, 3, 3, 3, 2, 
-        2, 3, 3, 3, 3, 3, 3, 2, 
-        2, 3, 3, 3, 3, 3, 3, 2, 
+        2, 2, 2, 2, 2, 2, 2, 2,
+        2, 3, 4, 4, 3, 3, 3, 2,
+        2, 3, 4, 13, 4, 3, 3, 2,
+        2, 3, 4, 4, 3, 3, 3, 2,
+        2, 3, 3, 3, 3, 3, 3, 2,
+        2, 3, 3, 3, 3, 3, 3, 2,
+        2, 3, 3, 3, 3, 3, 3, 2,
         2, 2, 2, 2, 2, 2, 2, 2,
     };
     private CubeCoordinates mountainCoordinateEasy = new CubeCoordinates(2, 2, -4);
 
-
-    [Fact]
+    [TestMethod]
     public void TestConvertMapSize()
     {
         var size = Utils.ConvertMapSize(MapSize.MICRO);
-        Assert.Equal(26, size.rows);
-        Assert.Equal(44, size.columns);
+        Assert.AreEqual(26, size.rows);
+        Assert.AreEqual(44, size.columns);
         size = Utils.ConvertMapSize(MapSize.TINY);
-        Assert.Equal(38, size.rows);
-        Assert.Equal(60, size.columns);
+        Assert.AreEqual(38, size.rows);
+        Assert.AreEqual(60, size.columns);
         size = Utils.ConvertMapSize(MapSize.SMALL);
-        Assert.Equal(46, size.rows);
-        Assert.Equal(74, size.columns);
+        Assert.AreEqual(46, size.rows);
+        Assert.AreEqual(74, size.columns);
         size = Utils.ConvertMapSize(MapSize.MEDIUM);
-        Assert.Equal(54, size.rows);
-        Assert.Equal(84, size.columns);
+        Assert.AreEqual(54, size.rows);
+        Assert.AreEqual(84, size.columns);
         size = Utils.ConvertMapSize(MapSize.LARGE);
-        Assert.Equal(60, size.rows);
-        Assert.Equal(96, size.columns);
+        Assert.AreEqual(60, size.rows);
+        Assert.AreEqual(96, size.columns);
         size = Utils.ConvertMapSize(MapSize.HUGE);
-        Assert.Equal(66, size.rows);
-        Assert.Equal(106, size.columns);
+        Assert.AreEqual(66, size.rows);
+        Assert.AreEqual(106, size.columns);
     }
 
-    [Fact]
+    [TestMethod]
     public void TestGetMinMaxValues()
     {
         var data = Utils.GetMinMaxValues<TerrainType>();
-        Assert.Equal(1, data.min);
-        Assert.Equal(13, data.max);
+        Assert.AreEqual(1, data.min);
+        Assert.AreEqual(13, data.max);
     }
 
-    [Fact]
+    [TestMethod]
     public void TestShuffle()
     {
         var list = new List<int> { 1, 2, 3, 4, 5 };
         Utils.Shuffle(list);
-        Assert.Equal(5, list.Count);
-        Assert.True(list[0] != 1 || list[1] != 2 || list[2] != 3 || list[3] != 4 || list[4] != 5);
+        Assert.AreEqual(5, list.Count);
+        Assert.IsTrue(list[0] != 1 || list[1] != 2 || list[2] != 3 || list[3] != 4 || list[4] != 5);
     }
 
-    [Fact]
+    [TestMethod]
     public void TestIsTileAtEdge()
     {
         var grid = Enumerable.Repeat(new Tile(), 9).ToList();
         Utils.InitializeHexGrid(grid, 3, 3, TerrainType.PLAIN);
-        Assert.True(Utils.IsTileAtEdge(grid, 3, 3, grid[0], 1));
-        Assert.False(Utils.IsTileAtEdge(grid, 3, 3, grid[4], 1));
+        Assert.IsTrue(Utils.IsTileAtEdge(grid, 3, 3, grid[0], 1));
+        Assert.IsFalse(Utils.IsTileAtEdge(grid, 3, 3, grid[4], 1));
     }
 
-    [Fact]
+    [TestMethod]
     public void TestFindNearestTile()
     {
         var grid = Enumerable.Repeat(new Tile(), 9).ToList();
         Utils.InitializeHexGrid(grid, 3, 3, TerrainType.PLAIN);
         grid[0].terrain = TerrainType.SHALLOW_WATER;
         var data = Utils.FindNearestTile(grid, 3, 3, new CubeCoordinates(0, 2, -2), 3, TerrainType.SHALLOW_WATER);
-        Assert.True(data.distance > 0);
-        Assert.NotNull(data.destinationTile);
-        Assert.True(data.destinationTile.Coordinates == new CubeCoordinates(0, 0, 0));
+        Assert.IsTrue(data.distance > 0);
+        Assert.IsNotNull(data.destinationTile);
+        Assert.IsTrue(data.destinationTile.Coordinates == new CubeCoordinates(0, 0, 0));
     }
 
-    [Fact]
+    [TestMethod]
     public void TestInitializeHexGrid()
     {
         var grid = Enumerable.Repeat(new Tile(), 9).ToList();
         Utils.InitializeHexGrid(grid, 3, 3, TerrainType.PLAIN);
-        Assert.Equal(9, grid.Count);
+        Assert.AreEqual(9, grid.Count);
         foreach (var tile in grid)
         {
-            Assert.Equal(TerrainType.PLAIN, tile.terrain);
+            Assert.AreEqual(TerrainType.PLAIN, tile.terrain);
         }
     }
 
-    [Fact]
+    [TestMethod]
     public void TestNeighborOf()
     {
         var grid = Enumerable.Repeat(new Tile(), 9).ToList();
         Utils.InitializeHexGrid(grid, 3, 3, TerrainType.PLAIN);
         var tile = Utils.NeighborOf(grid, 3, 3, new CubeCoordinates(0, 0, 0), Direction.NE);
-        Assert.Null(tile);
+        Assert.IsNull(tile);
         tile = Utils.NeighborOf(grid, 3, 3, new CubeCoordinates(0, 0, 0), Direction.E);
-        Assert.NotNull(tile);
-        Assert.True(new CubeCoordinates(1, 0, -1) == tile!.Coordinates);
+        Assert.IsNotNull(tile);
+        Assert.IsTrue(new CubeCoordinates(1, 0, -1) == tile!.Coordinates);
     }
 
-    [Fact]
+    [TestMethod]
     public void TestNeighbors()
     {
         var grid = Enumerable.Repeat(new Tile(), 9).ToList();
         Utils.InitializeHexGrid(grid, 3, 3, TerrainType.PLAIN);
         var baseTile = new Tile() { Coordinates = new CubeCoordinates(0, 0, 0) };
         var neighbors = baseTile.Neighbors(grid.Cast<HexTile>().ToList(), 3, 3);
-        Assert.Equal(2, neighbors.Count);
-        baseTile = new Tile() { Coordinates = new CubeCoordinates(1, 1,-2) };
+        Assert.AreEqual(2, neighbors.Count);
+        baseTile = new Tile() { Coordinates = new CubeCoordinates(1, 1, -2) };
         neighbors = baseTile.Neighbors(grid.Cast<HexTile>().ToList(), 3, 3);
-        Assert.Equal(6, neighbors.Count);
+        Assert.AreEqual(6, neighbors.Count);
     }
 
-    [Fact]
+    [TestMethod]
     public void TestCreateRiverPath()
     {
         int mapSize = 8;
@@ -126,12 +126,12 @@ public class UtilsTests
         Utils.InitializeExampleHexGrid(grid, mapSize, mapSize, exampleMapEasy);
         var mountain = new Mountain() { Coordinates = mountainCoordinateEasy };
         int distanceToWater = Utils.FindNearestTile(grid, mapSize, mapSize, mountain.Coordinates, mapSize, TerrainType.SHALLOW_WATER).distance;
-        Assert.True(distanceToWater > 0);
+        Assert.IsTrue(distanceToWater > 0);
         var path = Utils.CreateRiverPath(grid, mapSize, mapSize, mountain, distanceToWater);
-        Assert.True(path.Count > 0);
+        Assert.IsTrue(path.Count > 0);
     }
 
-    [Fact]
+    [TestMethod]
     public void TestFindCommonTile()
     {
         List<Tile> array1 = new() { new Tile() { Coordinates = new CubeCoordinates(0, 0, 0) },
@@ -146,21 +146,21 @@ public class UtilsTests
                                     new Tile() { Coordinates = new CubeCoordinates(-1, 2,-1) },
                                     new Tile() { Coordinates = new CubeCoordinates(-1, 3,-2) }};
         var common = Utils.FindCommonTiles(new List<List<Tile>> { array1, array2 });
-        Assert.Equal(2, common.Count);
+        Assert.AreEqual(2, common.Count);
         common = Utils.FindCommonTiles(new List<List<Tile>> { array1, array3 });
-        Assert.Equal(2, common.Count);
+        Assert.AreEqual(2, common.Count);
         common = Utils.FindCommonTiles(new List<List<Tile>> { array1, array2, array3 });
-        Assert.Single(common);
+        Assert.AreEqual(1, common.Count);
     }
-    
-    [Fact]
+
+    [TestMethod]
     public void TestCountTiles()
     {
         var grid = Enumerable.Repeat(new Tile(), 9).ToList();
         Utils.InitializeHexGrid(grid, 3, 3, TerrainType.GRASS);
         grid[0].terrain = TerrainType.SHALLOW_WATER;
         grid[^1].terrain = TerrainType.DEEP_WATER;
-        Assert.True(Utils.CountTiles(grid, new List<TerrainType>() { TerrainType.SHALLOW_WATER, TerrainType.DEEP_WATER }) == 2);
-        Assert.True(Utils.CountTiles(grid, new List<TerrainType>() { TerrainType.GRASS }) == 7);
+        Assert.IsTrue(Utils.CountTiles(grid, new List<TerrainType>() { TerrainType.SHALLOW_WATER, TerrainType.DEEP_WATER }) == 2);
+        Assert.IsTrue(Utils.CountTiles(grid, new List<TerrainType>() { TerrainType.GRASS }) == 7);
     }
 }
