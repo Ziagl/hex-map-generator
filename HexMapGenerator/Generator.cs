@@ -1,4 +1,4 @@
-﻿using com.hexagonsimulations.Geometry.Hex.Enums;
+﻿using com.hexagonsimulations.HexMapBase.Geometry.Hex.Enums;
 using com.hexagonsimulations.HexMapGenerator.Enums;
 using com.hexagonsimulations.HexMapGenerator.Generators;
 using com.hexagonsimulations.HexMapGenerator.Interfaces;
