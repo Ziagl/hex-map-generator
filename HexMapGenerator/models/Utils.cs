@@ -1,5 +1,5 @@
-﻿using com.hexagonsimulations.HexMapBase.Geometry.Hex;
-using com.hexagonsimulations.HexMapBase.Geometry.Hex.Enums;
+﻿using com.hexagonsimulations.HexMapBase.Enums;
+using com.hexagonsimulations.HexMapBase.Models;
 using com.hexagonsimulations.HexMapGenerator.Enums;
 using System.Data;
 using System.Runtime.CompilerServices;
