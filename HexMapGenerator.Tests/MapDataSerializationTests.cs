@@ -1,7 +1,7 @@
-﻿using com.hexagonsimulations.HexMapBase.Enums;
-using com.hexagonsimulations.HexMapGenerator.Enums;
+﻿using com.hexagonsimulations.HexMapGenerator.Enums;
 using com.hexagonsimulations.HexMapGenerator.Models;
-using com.hexagonsimulations.HexMapGenerator.Serialization;
+using System.Text;
+using System.Text.Json;
 
 namespace com.hexagonsimulations.HexMapGenerator.Tests;
 
@@ -9,44 +9,73 @@ namespace com.hexagonsimulations.HexMapGenerator.Tests;
 public sealed class MapDataSerializationTests
 {
     [TestMethod]
-    public void SerializeReturnsNonEmptyString()
+    public void SerializationDeserializationJSON()
     {
-        var generator = new Generator();
-        generator.GenerateMap(MapType.LAKES, MapSize.HUGE, MapTemperature.COLD, MapHumidity.WET, 0.0f);
-        var json = MapDataJson.Serialize(generator.MapData);
-        Assert.IsFalse(string.IsNullOrWhiteSpace(json), "Serialized JSON should not be empty or whitespace.");
-        Assert.IsTrue(json.Contains("{") && json.Contains("}"), "Serialized output does not appear to be JSON.");
-    }
-
-    [TestMethod]
-    public void SerializationDeserialization()
-    {
-        var generator = new Generator();
-        generator.GenerateMap(MapType.LAKES, MapSize.HUGE, MapTemperature.COLD, MapHumidity.WET, 0.0f);
+        var generator = new Generator(1234);
+        generator.GenerateMap(MapType.HIGHLAND, MapSize.MEDIUM, MapTemperature.NORMAL, MapHumidity.NORMAL, 2.0f);
         var original = generator.MapData;
 
-        var json = MapDataJson.Serialize(original);
+        var json = original.ToJson();
         Assert.IsFalse(string.IsNullOrWhiteSpace(json), "JSON should not be empty.");
 
-        var roundTripped = MapDataJson.Deserialize(json);
+        // dump this map as JSON to disk
+        //var filePath = @"C:\Temp\MapData.json";
+        //File.WriteAllText(filePath, json);
+
+        var roundTripped = MapData.FromJson(json);
         Assert.IsNotNull(roundTripped, "Deserialized MapData should not be null.");
 
         AssertMapDataEqual(original, roundTripped);
     }
 
     [TestMethod]
+    public void SerializationDeserializationBinary()
+    {
+        var generator = new Generator(1234);
+        generator.GenerateMap(MapType.HIGHLAND, MapSize.MEDIUM, MapTemperature.NORMAL, MapHumidity.NORMAL, 2.0f);
+        var original = generator.MapData;
+        using var ms = new MemoryStream();
+        using (var bw = new BinaryWriter(ms, Encoding.UTF8, leaveOpen: true))
+        {
+            original.Write(bw);
+        }
+
+        // dump this map as BIN to disk
+        //var filePath = @"C:\Temp\MapData.bin";
+        //File.WriteAllBytes(filePath, ms.ToArray());
+
+        ms.Position = 0;
+        MapData fromBinary;
+        using (var br = new BinaryReader(ms, Encoding.UTF8, leaveOpen: false))
+        {
+            fromBinary = MapData.Read(br);
+        }
+
+        AssertMapDataEqual(original, fromBinary);
+    }
+
+    [TestMethod]
+    public void SerializeReturnsNonEmptyString()
+    {
+        var generator = new Generator();
+        generator.GenerateMap(MapType.LAKES, MapSize.HUGE, MapTemperature.COLD, MapHumidity.WET, 0.0f);
+        var json = generator.MapData.ToJson();
+        Assert.IsFalse(string.IsNullOrWhiteSpace(json), "Serialized JSON should not be empty or whitespace.");
+        Assert.IsTrue(json.Contains("{") && json.Contains("}"), "Serialized output does not appear to be JSON.");
+    }
+
+    [TestMethod]
     public void SerializeNull()
     {
-        var json = MapDataJson.Serialize(null!);
-        Assert.AreEqual(string.Empty, json.Trim(), "Serializing null should return an empty string.");
+        MapData? map = null;
+        Assert.ThrowsExactly<NullReferenceException>(() => map!.ToJson());
     }
 
     [TestMethod]
     public void DeserializeInvalidJson()
     {
         var invalidJson = "{ invalid json ";
-        var result = MapDataJson.Deserialize(invalidJson);
-        Assert.IsNull(result, "Deserializing invalid JSON should return null.");
+        Assert.ThrowsExactly<JsonException>(() => MapData.FromJson(invalidJson));
     }
 
     // Helper to assert deep equality of MapData
@@ -60,38 +89,19 @@ public sealed class MapDataSerializationTests
         Assert.AreEqual(expected.Humidity, actual.Humidity, "MapHumidity mismatch.");
 
         // TerrainMap
-        AssertIsNotNullAndSameCount(expected.TerrainMap, actual.TerrainMap, "TerrainMap null or count mismatch.");
-        CollectionAssert.AreEqual(expected.TerrainMap.ToList(), actual.TerrainMap.ToList(), "TerrainMap content mismatch.");
+        CollectionAssert.AreEqual(expected.TerrainMap, actual.TerrainMap, "TerrainMap content mismatch.");
 
         // LandscapeMap
-        AssertIsNotNullAndSameCount(expected.LandscapeMap, actual.LandscapeMap, "LandscapeMap null or count mismatch.");
-        CollectionAssert.AreEqual(expected.LandscapeMap.ToList(), actual.LandscapeMap.ToList(), "LandscapeMap content mismatch.");
+        CollectionAssert.AreEqual(expected.LandscapeMap, actual.LandscapeMap, "LandscapeMap content mismatch.");
 
         // RiverMap
-        AssertIsNotNullAndSameCount(expected.RiverMap, actual.RiverMap, "RiverMap null or count mismatch.");
-        CollectionAssert.AreEqual(expected.RiverMap.ToList(), actual.RiverMap.ToList(), "RiverMap content mismatch.");
+        CollectionAssert.AreEqual(expected.RiverMap, actual.RiverMap, "RiverMap content mismatch.");
 
         // RiverTileDirections
-        if (expected.RiverTileDirections is null && actual.RiverTileDirections is null)
-            return;
-
-        Assert.IsNotNull(expected.RiverTileDirections, "Expected RiverTileDirections is null while actual isn't.");
-        Assert.IsNotNull(actual.RiverTileDirections, "Actual RiverTileDirections is null while expected isn't.");
         Assert.AreEqual(expected.RiverTileDirections.Count, actual.RiverTileDirections.Count, "RiverTileDirections count mismatch.");
-
         foreach (var kvp in expected.RiverTileDirections)
         {
-            Assert.IsTrue(actual.RiverTileDirections.ContainsKey(kvp.Key), $"Missing RiverTile key {kvp.Key}.");
-            var expectedDirs = kvp.Value ?? new List<Direction>();
-            var actualDirs = actual.RiverTileDirections[kvp.Key] ?? new List<Direction>();
-            CollectionAssert.AreEqual(expectedDirs.ToList(), actualDirs.ToList(), $"River directions mismatch at {kvp.Key}.");
+            CollectionAssert.AreEqual(kvp.Value, actual.RiverTileDirections[kvp.Key], $"River directions mismatch at {kvp.Key}.");
         }
-    }
-
-    private static void AssertIsNotNullAndSameCount<T>(ICollection<T>? expected, ICollection<T>? actual, string message)
-    {
-        Assert.IsNotNull(expected, $"Expected collection null: {message}");
-        Assert.IsNotNull(actual, $"Actual collection null: {message}");
-        Assert.AreEqual(expected.Count, actual.Count, $"Count mismatch: {message}");
     }
 }
