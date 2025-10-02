@@ -1,5 +1,4 @@
-﻿using com.hexagonsimulations.HexMapBase.Enums;
-using com.hexagonsimulations.HexMapGenerator.Enums;
+﻿using com.hexagonsimulations.HexMapGenerator.Enums;
 using com.hexagonsimulations.HexMapGenerator.Generators;
 using com.hexagonsimulations.HexMapGenerator.Interfaces;
 using com.hexagonsimulations.HexMapGenerator.Models;
@@ -9,10 +8,8 @@ namespace com.hexagonsimulations.HexMapGenerator;
 
 public class Generator
 {
-    private readonly string[] _layers = { "terrain", "landscape", "river" };
     private readonly int _riverbed = 3;
     private MapData _map = new();
-    private Dictionary<string, List<Direction>> _mapRiverTileDirections= new();
     internal static Random random = new();
 
     public Generator()

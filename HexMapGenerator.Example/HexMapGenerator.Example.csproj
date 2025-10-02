@@ -18,6 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="HexMapBase" Version="0.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\HexMapGenerator\HexMapGenerator.csproj" />
   </ItemGroup>
 
