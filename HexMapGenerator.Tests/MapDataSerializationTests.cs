@@ -8,8 +8,11 @@ namespace com.hexagonsimulations.HexMapGenerator.Tests;
 [TestClass]
 public sealed class MapDataSerializationTests
 {
+    private readonly string TempDir = @"C:\Temp\";
+    private readonly bool DumpToDisk = false; // set to true to dump serialized data to disk for inspection
+
     [TestMethod]
-    public void SerializationDeserializationJSON()
+    public void MapData_Json()
     {
         var generator = new Generator(1234);
         generator.GenerateMap(MapType.HIGHLAND, MapSize.MEDIUM, MapTemperature.NORMAL, MapHumidity.NORMAL, 2.0f);
@@ -18,9 +21,10 @@ public sealed class MapDataSerializationTests
         var json = original.ToJson();
         Assert.IsFalse(string.IsNullOrWhiteSpace(json), "JSON should not be empty.");
 
-        // dump this map as JSON to disk
-        //var filePath = @"C:\Temp\MapData.json";
-        //File.WriteAllText(filePath, json);
+        if(DumpToDisk)
+        {
+            File.WriteAllText($"{TempDir}Generator.json", json);
+        }
 
         var roundTripped = MapData.FromJson(json);
         Assert.IsNotNull(roundTripped, "Deserialized MapData should not be null.");
@@ -29,7 +33,7 @@ public sealed class MapDataSerializationTests
     }
 
     [TestMethod]
-    public void SerializationDeserializationBinary()
+    public void MapData_Binary()
     {
         var generator = new Generator(1234);
         generator.GenerateMap(MapType.HIGHLAND, MapSize.MEDIUM, MapTemperature.NORMAL, MapHumidity.NORMAL, 2.0f);
@@ -40,9 +44,10 @@ public sealed class MapDataSerializationTests
             original.Write(bw);
         }
 
-        // dump this map as BIN to disk
-        //var filePath = @"C:\Temp\MapData.bin";
-        //File.WriteAllBytes(filePath, ms.ToArray());
+        if (DumpToDisk)
+        {
+            File.WriteAllBytes($"{TempDir}MapData.bin", ms.ToArray());
+        }
 
         ms.Position = 0;
         MapData fromBinary;
