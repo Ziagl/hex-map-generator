@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HexMapBase" Version="0.5.0" />
+    <PackageReference Include="HexMapBase" Version="0.5.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="MSTest" Version="4.0.2" />
   </ItemGroup>

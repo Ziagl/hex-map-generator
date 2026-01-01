@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HexMapBase" Version="0.5.0" />
+    <PackageReference Include="HexMapBase" Version="0.5.1" />
   </ItemGroup>
 
   <ItemGroup>

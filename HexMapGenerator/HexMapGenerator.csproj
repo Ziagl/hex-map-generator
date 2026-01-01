@@ -5,7 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.5.0</Version>
+    <Version>0.5.1</Version>
     <Authors>Werner Ziegelwanger</Authors>
     <Company>Hexagon Simulations</Company>
     <Description>A hexagon map generator for Tiled Map Editor (https://www.mapeditor.org/) files.</Description>
@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HexMapBase" Version="0.5.0" />
+    <PackageReference Include="HexMapBase" Version="0.5.1" />
   </ItemGroup>
 
 </Project>
