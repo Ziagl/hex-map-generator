@@ -11,7 +11,7 @@ public sealed class GeneratorTests
         var generator = new Generator();
         generator.GenerateMap(MapType.RANDOM, MapSize.TINY, MapTemperature.HOT, MapHumidity.DRY, 0.0f);
         Assert.AreEqual(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
-        Assert.IsTrue(generator.Print().Length > 0);
+        Assert.IsGreaterThan(0, generator.Print().Length);
     }
 
     [TestMethod]
@@ -22,7 +22,7 @@ public sealed class GeneratorTests
         Assert.AreEqual(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
-        Assert.IsTrue(generator.MapData.RiverTileDirections.Count == 0);
+        Assert.IsEmpty(generator.MapData.RiverTileDirections);
     }
 
     [TestMethod]
@@ -33,7 +33,7 @@ public sealed class GeneratorTests
         Assert.AreEqual(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
-        Assert.IsTrue(generator.MapData.RiverTileDirections.Count == 0);
+        Assert.IsEmpty(generator.MapData.RiverTileDirections);
     }
 
     [TestMethod]
@@ -44,7 +44,7 @@ public sealed class GeneratorTests
         Assert.AreEqual(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
-        Assert.IsTrue(generator.MapData.RiverTileDirections.Count == 0);
+        Assert.IsEmpty(generator.MapData.RiverTileDirections);
     }
 
     [TestMethod]
@@ -55,7 +55,7 @@ public sealed class GeneratorTests
         Assert.AreEqual(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
-        Assert.IsTrue(generator.MapData.RiverTileDirections.Count == 0);
+        Assert.IsEmpty(generator.MapData.RiverTileDirections);
     }
 
     [TestMethod]
@@ -66,7 +66,7 @@ public sealed class GeneratorTests
         Assert.AreEqual(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
-        Assert.IsTrue(generator.MapData.RiverTileDirections.Count == 0);
+        Assert.IsEmpty(generator.MapData.RiverTileDirections);
     }
 
     [TestMethod]
@@ -77,7 +77,7 @@ public sealed class GeneratorTests
         Assert.AreEqual(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
-        Assert.IsTrue(generator.MapData.RiverTileDirections.Count == 0);
+        Assert.IsEmpty(generator.MapData.RiverTileDirections);
     }
 
     [TestMethod]
@@ -88,7 +88,7 @@ public sealed class GeneratorTests
         Assert.AreEqual(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
-        Assert.IsTrue(generator.MapData.RiverTileDirections.Count == 0);
+        Assert.IsEmpty(generator.MapData.RiverTileDirections);
     }
 
     [TestMethod]
@@ -99,7 +99,7 @@ public sealed class GeneratorTests
         Assert.AreEqual(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
-        Assert.IsTrue(generator.MapData.RiverTileDirections.Count == 0);
+        Assert.IsEmpty(generator.MapData.RiverTileDirections);
     }
 
     [TestMethod]
@@ -110,7 +110,7 @@ public sealed class GeneratorTests
         Assert.AreEqual(generator.MapData.TerrainMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.LandscapeMap.Count, generator.MapData.Rows * generator.MapData.Columns);
         Assert.AreEqual(generator.MapData.RiverMap.Count, generator.MapData.Rows * generator.MapData.Columns);
-        Assert.IsTrue(generator.MapData.RiverTileDirections.Count == 0);
+        Assert.IsEmpty(generator.MapData.RiverTileDirections);
     }
 
     [TestMethod]
@@ -118,10 +118,10 @@ public sealed class GeneratorTests
     {
         var generator = new Generator(1234);
         generator.GenerateMap(MapType.HIGHLAND, MapSize.MEDIUM, MapTemperature.NORMAL, MapHumidity.NORMAL, 2.0f);
-        Assert.IsTrue(generator.MapData.RiverTileDirections.Count > 0);
+        Assert.IsNotEmpty(generator.MapData.RiverTileDirections);
         foreach (var directions in generator.MapData.RiverTileDirections)
         {
-            Assert.IsTrue(directions.Value.Count > 0);
+            Assert.IsNotEmpty(directions.Value);
         }
     }
 }

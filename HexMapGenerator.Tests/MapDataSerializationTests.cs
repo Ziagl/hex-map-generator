@@ -103,7 +103,7 @@ public sealed class MapDataSerializationTests
         CollectionAssert.AreEqual(expected.RiverMap, actual.RiverMap, "RiverMap content mismatch.");
 
         // RiverTileDirections
-        Assert.AreEqual(expected.RiverTileDirections.Count, actual.RiverTileDirections.Count, "RiverTileDirections count mismatch.");
+        Assert.HasCount(expected.RiverTileDirections.Count, actual.RiverTileDirections, "RiverTileDirections count mismatch.");
         foreach (var kvp in expected.RiverTileDirections)
         {
             CollectionAssert.AreEqual(kvp.Value, actual.RiverTileDirections[kvp.Key], $"River directions mismatch at {kvp.Key}.");

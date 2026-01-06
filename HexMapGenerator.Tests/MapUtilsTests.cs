@@ -23,8 +23,8 @@ public sealed class MapUtilsTests
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1
         };
         var startPositions = MapUtils.FindPlayerStartingPositions(2, map, 10, 10);
-        Assert.AreEqual(2, startPositions.Count);
-        Assert.IsTrue(Distance(startPositions[0], startPositions[1]) > 4.0);
+        Assert.HasCount(2, startPositions);
+        Assert.IsGreaterThan(4.0, Distance(startPositions[0], startPositions[1]));
 
         map = new()
         {
@@ -35,7 +35,7 @@ public sealed class MapUtilsTests
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1
         };
         startPositions = MapUtils.FindPlayerStartingPositions(2, map, 5, 10);
-        Assert.AreEqual(2, startPositions.Count);
+        Assert.HasCount(2, startPositions);
 
         // because of randomness try this complex example 10 times
         for (int x = 0; x < 10; ++x)
@@ -54,7 +54,7 @@ public sealed class MapUtilsTests
                 1, 1, 1, 1, 1, 0, 0, 1, 1, 1
             };
             startPositions = MapUtils.FindPlayerStartingPositions(5, map, 10, 10);
-            Assert.AreEqual(5, startPositions.Count);
+            Assert.HasCount(5, startPositions);
             List<double> distances = new();
             double minDistance = double.MaxValue;
             double maxDistance = double.MinValue;
@@ -78,10 +78,10 @@ public sealed class MapUtilsTests
                     }
                     distances.Add(distance);
                 }
-                Assert.IsTrue(map[startPositions[i].y * 10 + startPositions[i].x] > 0, "Map position is 0");
+                Assert.IsGreaterThan(0, map[startPositions[i].y * 10 + startPositions[i].x], "Map position is 0");
             }
-            Assert.IsTrue(maxDistance - minDistance < 7.0, $"Difference is {maxDistance - minDistance}");
-            Assert.IsTrue(minDistance >= 2.0, $"Distance is {minDistance}");
+            Assert.IsLessThan(7.0, maxDistance - minDistance, $"Difference is {maxDistance - minDistance}");
+            Assert.IsGreaterThanOrEqualTo(2.0, minDistance, $"Distance is {minDistance}");
         }
     }
 
