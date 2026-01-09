@@ -188,8 +188,8 @@ public class HeightmapGenerator
         y -= Math.Floor(y);
 
         // Compute fade curves for x and y
-        double u = Fade(x);
-        double v = Fade(y);
+        double u = Utils.Fade(x);
+        double v = Utils.Fade(y);
 
         // Hash coordinates of the 4 cube corners
         int aa = _permutation[_permutation[X] + Y];
@@ -198,38 +198,10 @@ public class HeightmapGenerator
         int bb = _permutation[_permutation[X + 1] + Y + 1];
 
         // Blend results from 4 corners
-        double x1 = Lerp(Grad(aa, x, y), Grad(ba, x - 1, y), u);
-        double x2 = Lerp(Grad(ab, x, y - 1), Grad(bb, x - 1, y - 1), u);
+        double x1 = Utils.Lerp(Utils.Grad(aa, x, y), Utils.Grad(ba, x - 1, y), u);
+        double x2 = Utils.Lerp(Utils.Grad(ab, x, y - 1), Utils.Grad(bb, x - 1, y - 1), u);
 
-        return Lerp(x1, x2, v);
-    }
-
-    /// <summary>
-    /// Fade function for smooth interpolation (6t^5 - 15t^4 + 10t^3)
-    /// </summary>
-    private static double Fade(double t)
-    {
-        return t * t * t * (t * (t * 6 - 15) + 10);
-    }
-
-    /// <summary>
-    /// Linear interpolation between two values
-    /// </summary>
-    private static double Lerp(double a, double b, double t)
-    {
-        return a + t * (b - a);
-    }
-
-    /// <summary>
-    /// Gradient function that converts hash value to dot product with distance vector
-    /// </summary>
-    private static double Grad(int hash, double x, double y)
-    {
-        // Take the lower 4 bits of hash and use it to select a gradient direction
-        int h = hash & 15;
-        double u = h < 8 ? x : y;
-        double v = h < 4 ? y : h == 12 || h == 14 ? x : 0;
-        return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
+        return Utils.Lerp(x1, x2, v);
     }
 
     /// <summary>
