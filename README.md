@@ -1,5 +1,5 @@
 # hex-map-generator
-A hexagon map generator for Tiled Map Editor (https://www.mapeditor.org/) files.
+A hexagon map/heightmap generator for Tiled Map Editor (https://www.mapeditor.org/) files.
 
 ## Sample of generated maps inside Tiled Map Editor:
 
