@@ -1033,4 +1033,23 @@ internal class Utils
         }
         return new OffsetCoordinates(foundX, foundY);
     }
+
+    /// <summary>
+    /// Counts how many of given expectedTypes are found in given list of types and returns the percentage.
+    /// </summary>
+    /// <param name="types">A list of f.e. map tiles as its types.</param>
+    /// <param name="expectedTypes">A list of types that counts.</param>
+    /// <returns>Percentage of expected types that match given types list.</returns>
+    internal static double MatchPercentage(List<int> types, List<int> expectedTypes)
+    {
+        int count = 0;
+        foreach(var type in types)
+        {
+            if(expectedTypes.Contains(type))
+            {
+                ++count;
+            }
+        }
+        return (double)count / types.Count;
+    }
 }

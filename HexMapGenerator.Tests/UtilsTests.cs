@@ -163,4 +163,16 @@ public sealed class UtilsTests
         Assert.AreEqual(2, Utils.CountTiles(grid, new List<TerrainType>() { TerrainType.SHALLOW_WATER, TerrainType.DEEP_WATER }));
         Assert.AreEqual(7, Utils.CountTiles(grid, new List<TerrainType>() { TerrainType.GRASS }));
     }
+
+    [TestMethod]
+    public void MatchPercentage()
+    {
+        var map = new List<int>() { 1, 1, 1, 1,
+                                    2, 1, 1, 3,
+                                    1, 2, 2, 3,
+                                    1, 1, 1, 1 };
+        var types = new List<int>() { 2, 3 };
+        double percentage = Utils.MatchPercentage(map, types);
+        Assert.AreEqual(0.3125, percentage);
+    }
 }
