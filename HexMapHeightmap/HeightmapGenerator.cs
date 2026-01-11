@@ -54,22 +54,22 @@ public class HeightmapGenerator
     /// </summary>
     /// <param name="width">Width of the heightmap in pixels</param>
     /// <param name="height">Height of the heightmap in pixels</param>
-    /// <returns>A 2D byte array containing grayscale heightmap values (0-255)</returns>
-    public byte[,] GenerateWhiteNoise(int width, int height)
+    /// <returns>A 2D double array containing normalized heightmap values (0.0-1.0)</returns>
+    public double[,] GenerateWhiteNoise(int width, int height)
     {
         if (width <= 0 || height <= 0)
         {
             throw new ArgumentException("Width and height must be positive values");
         }
 
-        var heightmap = new byte[width, height];
+        var heightmap = new double[width, height];
 
-        // Generate white noise - random grayscale value for each pixel
+        // Generate white noise - random value normalized to 0.0-1.0 range
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                heightmap[x, y] = (byte)_random.Next(0, 256);
+                heightmap[x, y] = _random.Next(0, 256) / 255.0;
             }
         }
 
@@ -85,8 +85,8 @@ public class HeightmapGenerator
     /// <param name="octaves">Number of noise layers to combine for fractal detail. Default is 4.</param>
     /// <param name="persistence">Amplitude decay factor per octave (0-1). Default is 0.5.</param>
     /// <param name="lacunarity">Frequency increase factor per octave. Default is 2.0.</param>
-    /// <returns>A 2D byte array containing grayscale heightmap values (0-255)</returns>
-    public byte[,] GeneratePerlinNoise(int width, int height, double scale = 0.05, int octaves = 4, double persistence = 0.5, double lacunarity = 2.0)
+    /// <returns>A 2D double array containing normalized heightmap values (0.0-1.0)</returns>
+    public double[,] GeneratePerlinNoise(int width, int height, double scale = 0.05, int octaves = 4, double persistence = 0.5, double lacunarity = 2.0)
     {
         if (width <= 0 || height <= 0)
         {
@@ -113,7 +113,6 @@ public class HeightmapGenerator
             throw new ArgumentException("Lacunarity must be at least 1");
         }
 
-        var heightmap = new byte[width, height];
         double minValue = double.MaxValue;
         double maxValue = double.MinValue;
         var noiseValues = new double[width, height];
@@ -146,7 +145,7 @@ public class HeightmapGenerator
             }
         }
 
-        // Normalize to 0-255 range
+        // Normalize to 0.0-1.0 range
         double range = maxValue - minValue;
         if (range > 0)
         {
@@ -154,24 +153,23 @@ public class HeightmapGenerator
             {
                 for (int x = 0; x < width; x++)
                 {
-                    double normalized = (noiseValues[x, y] - minValue) / range;
-                    heightmap[x, y] = (byte)(normalized * 255);
+                    noiseValues[x, y] = (noiseValues[x, y] - minValue) / range;
                 }
             }
         }
         else
         {
-            // If all values are the same, fill with middle gray
+            // If all values are the same, fill with 0.5
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    heightmap[x, y] = 128;
+                    noiseValues[x, y] = 0.5;
                 }
             }
         }
 
-        return heightmap;
+        return noiseValues;
     }
 
     /// <summary>

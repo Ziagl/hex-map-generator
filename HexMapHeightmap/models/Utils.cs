@@ -6,7 +6,7 @@ internal class Utils
     /// Saves a heightmap as a PGM (Portable GrayMap) image file
     /// PGM is a simple grayscale image format that can be opened by most image viewers
     /// </summary>
-    internal static void SaveAsPGM(byte[,] heightmap, int width, int height, string outputPath)
+    internal static void SaveAsPGM(double[,] heightmap, int width, int height, string outputPath)
     {
         using var writer = new StreamWriter(outputPath);
 
@@ -15,12 +15,13 @@ internal class Utils
         writer.WriteLine($"{width} {height}");
         writer.WriteLine("255");
 
-        // Write pixel data
+        // Write pixel data, scaling from 0.0-1.0 to 0-255
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                writer.Write(heightmap[x, y]);
+                byte value = (byte)(heightmap[x, y] * 255);
+                writer.Write(value);
                 if (x < width - 1)
                     writer.Write(" ");
             }
@@ -33,7 +34,7 @@ internal class Utils
     /// Saves a heightmap as a BMP (Bitmap) image file
     /// Creates a 24-bit RGB BMP with grayscale values
     /// </summary>
-    internal static void SaveAsBMP(byte[,] heightmap, int width, int height, string outputPath)
+    internal static void SaveAsBMP(double[,] heightmap, int width, int height, string outputPath)
     {
         int rowSize = ((width * 3 + 3) / 4) * 4; // BMP rows must be padded to 4-byte boundary
         int imageSize = rowSize * height;
@@ -61,13 +62,13 @@ internal class Utils
         writer.Write(0); // Colors in palette
         writer.Write(0); // Important colors
 
-        // Pixel data (BGR format, bottom-to-top)
+        // Pixel data (BGR format, bottom-to-top), scaling from 0.0-1.0 to 0-255
         byte[] padding = new byte[rowSize - (width * 3)];
         for (int y = height - 1; y >= 0; y--)
         {
             for (int x = 0; x < width; x++)
             {
-                byte value = heightmap[x, y];
+                byte value = (byte)(heightmap[x, y] * 255);
                 writer.Write(value); // Blue
                 writer.Write(value); // Green
                 writer.Write(value); // Red

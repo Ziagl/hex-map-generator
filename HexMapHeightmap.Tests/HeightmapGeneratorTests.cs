@@ -37,11 +37,12 @@ public sealed class HeightmapGeneratorDataTests
         var heightmap2 = generator2.GenerateWhiteNoise(width, height);
 
         // Assert
+        const double epsilon = 1e-10;
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                Assert.AreEqual(heightmap1[x, y], heightmap2[x, y], $"Pixel mismatch at ({x}, {y})");
+                Assert.AreEqual(heightmap1[x, y], heightmap2[x, y], epsilon, $"Pixel mismatch at ({x}, {y})");
             }
         }
     }
@@ -86,12 +87,13 @@ public sealed class HeightmapGeneratorDataTests
         var heightmap = generator.GenerateWhiteNoise(width, height);
 
         // Assert
+        const double epsilon = 1e-10;
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                byte value = heightmap[x, y];
-                Assert.IsTrue(value >= 0 && value <= 255, $"Value at ({x}, {y}) is {value}, expected 0-255");
+                double value = heightmap[x, y];
+                Assert.IsTrue(value >= 0.0 - epsilon && value <= 1.0 + epsilon, $"Value at ({x}, {y}) is {value}, expected 0.0-1.0");
             }
         }
     }
@@ -108,18 +110,22 @@ public sealed class HeightmapGeneratorDataTests
         var heightmap = generator.GenerateWhiteNoise(width, height);
 
         // Assert - check that we have a reasonable distribution
-        int[] histogram = new int[256];
+        // For doubles in 0.0-1.0 range, we'll divide into 100 bins
+        int binCount = 100;
+        int[] histogram = new int[binCount];
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                histogram[heightmap[x, y]]++;
+                double value = heightmap[x, y];
+                int binIndex = Math.Min((int)(value * binCount), binCount - 1);
+                histogram[binIndex]++;
             }
         }
 
-        // At least 50% of possible values should appear at least once in a large map
-        int usedValues = histogram.Count(count => count > 0);
-        Assert.IsGreaterThan(128, usedValues, $"Only {usedValues} of 256 possible values were used - distribution may be poor");
+        // At least 50% of bins should have values in a large map
+        int usedBins = histogram.Count(count => count > 0);
+        Assert.IsGreaterThan(binCount / 2, usedBins, $"Only {usedBins} of {binCount} bins were used - distribution may be poor");
     }
 
     [TestMethod]
@@ -174,9 +180,10 @@ public sealed class HeightmapGeneratorDataTests
         var heightmap = generator.GenerateWhiteNoise(width, height);
 
         // Assert
+        const double epsilon = 1e-10;
         Assert.AreEqual(1, heightmap.GetLength(0));
         Assert.AreEqual(1, heightmap.GetLength(1));
-        Assert.IsTrue(heightmap[0, 0] >= 0 && heightmap[0, 0] <= 255);
+        Assert.IsTrue(heightmap[0, 0] >= 0.0 - epsilon && heightmap[0, 0] <= 1.0 + epsilon);
     }
 
     [TestMethod]
@@ -291,11 +298,12 @@ public sealed class HeightmapGeneratorDataTests
         var heightmap2 = generator2.GeneratePerlinNoise(width, height);
 
         // Assert
+        const double epsilon = 1e-10;
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                Assert.AreEqual(heightmap1[x, y], heightmap2[x, y], $"Pixel mismatch at ({x}, {y})");
+                Assert.AreEqual(heightmap1[x, y], heightmap2[x, y], epsilon, $"Pixel mismatch at ({x}, {y})");
             }
         }
     }
@@ -340,12 +348,13 @@ public sealed class HeightmapGeneratorDataTests
         var heightmap = generator.GeneratePerlinNoise(width, height);
 
         // Assert
+        const double epsilon = 1e-10;
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                byte value = heightmap[x, y];
-                Assert.IsTrue(value >= 0 && value <= 255, $"Value at ({x}, {y}) is {value}, expected 0-255");
+                double value = heightmap[x, y];
+                Assert.IsTrue(value >= 0.0 - epsilon && value <= 1.0 + epsilon, $"Value at ({x}, {y}) is {value}, expected 0.0-1.0");
             }
         }
     }
@@ -365,15 +374,15 @@ public sealed class HeightmapGeneratorDataTests
         // Check that neighboring pixels don't differ too drastically
         int largeJumps = 0;
         int totalComparisons = 0;
-        int jumpThreshold = 50; // Allow for some variation but not pure random
+        double jumpThreshold = 0.2; // 20% of range (was 50/255 ≈ 0.196)
 
         for (int y = 0; y < height - 1; y++)
         {
             for (int x = 0; x < width - 1; x++)
             {
-                int currentValue = heightmap[x, y];
-                int rightValue = heightmap[x + 1, y];
-                int downValue = heightmap[x, y + 1];
+                double currentValue = heightmap[x, y];
+                double rightValue = heightmap[x + 1, y];
+                double downValue = heightmap[x, y + 1];
 
                 if (Math.Abs(currentValue - rightValue) > jumpThreshold)
                 {
@@ -563,9 +572,10 @@ public sealed class HeightmapGeneratorDataTests
         var heightmap = generator.GeneratePerlinNoise(width, height);
 
         // Assert
+        const double epsilon = 1e-10;
         Assert.AreEqual(1, heightmap.GetLength(0));
         Assert.AreEqual(1, heightmap.GetLength(1));
-        Assert.IsTrue(heightmap[0, 0] >= 0 && heightmap[0, 0] <= 255);
+        Assert.IsTrue(heightmap[0, 0] >= 0.0 - epsilon && heightmap[0, 0] <= 1.0 + epsilon);
     }
 
     [TestMethod]
