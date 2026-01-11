@@ -257,4 +257,90 @@ public class HeightmapGenerator
         var heightmap = GenerateWhiteNoise(width, height);
         Utils.SaveAsBMP(heightmap, width, height, outputPath);
     }
+
+    
+    /// <summary>
+    /// Generates an elliptic continent heightmap with the specified dimensions
+    /// Creates a heightmap with an elliptical falloff from center, simulating a continental landmass
+    /// </summary>
+    /// <param name="width">Width of the heightmap in pixels</param>
+    /// <param name="height">Height of the heightmap in pixels</param>
+    /// <param name="percentOfMap">Percentage of map covered by the ellipse (0.0-1.0). Default is 0.85.</param>
+    /// <returns>A 2D double array containing normalized heightmap values (0.0-1.0)</returns>
+    public double[,] GenerateEllipticContinent(int width, int height, double percentOfMap = 0.85)
+    {
+        if (width <= 0 || height <= 0)
+        {
+            throw new ArgumentException("Width and height must be positive values");
+        }
+
+        if (percentOfMap <= 0 || percentOfMap > 1.0)
+        {
+            throw new ArgumentException("PercentOfMap must be between 0 and 1");
+        }
+
+        var heightmap = new double[width, height];
+        
+        // Calculate center offsets
+        double xdim = width / 2.0;
+        double ydim = height / 2.0;
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                // Convert to centered coordinates
+                double xCentered = x - xdim;
+                double yCentered = y - ydim;
+
+                // Add randomness for variation
+                double randomScale = _random.NextDouble();
+                double ratio = percentOfMap + 0.1 * _random.NextDouble();
+
+                // Calculate ellipse parameters
+                double a = ratio * xdim;
+                double b = ratio * ydim;
+
+                // Calculate distance factor using elliptic formula
+                double distanceFactor = 
+                    (xCentered * xCentered) / (a * a) + 
+                    (yCentered * yCentered) / (b * b) + 
+                    Math.Pow(xCentered + yCentered, 2) / Math.Pow(a + b, 2);
+
+                // Calculate height value with falloff
+                double value = Math.Min(0.3, 1.0 - (5.0 * distanceFactor * distanceFactor + randomScale) / 3.0);
+                
+                // Clamp and normalize to 0.0-1.0 range
+                heightmap[x, y] = Math.Max(0.0, Math.Min(1.0, value));
+            }
+        }
+
+        return heightmap;
+    }
+
+    /// <summary>
+    /// Generates an elliptic continent heightmap and saves it to a file as a PGM (Portable GrayMap) image
+    /// </summary>
+    /// <param name="width">Width of the heightmap in pixels</param>
+    /// <param name="height">Height of the heightmap in pixels</param>
+    /// <param name="outputPath">Path where the heightmap image will be saved (PGM format)</param>
+    /// <param name="percentOfMap">Percentage of map covered by the ellipse (0.0-1.0). Default is 0.85.</param>
+    public void GenerateAndSaveEllipticContinent(int width, int height, string outputPath, double percentOfMap = 0.85)
+    {
+        var heightmap = GenerateEllipticContinent(width, height, percentOfMap);
+        Utils.SaveAsPGM(heightmap, width, height, outputPath);
+    }
+
+    /// <summary>
+    /// Generates an elliptic continent heightmap and saves it to a file as a BMP image
+    /// </summary>
+    /// <param name="width">Width of the heightmap in pixels</param>
+    /// <param name="height">Height of the heightmap in pixels</param>
+    /// <param name="outputPath">Path where the heightmap image will be saved (BMP format)</param>
+    /// <param name="percentOfMap">Percentage of map covered by the ellipse (0.0-1.0). Default is 0.85.</param>
+    public void GenerateAndSaveEllipticContinentAsBMP(int width, int height, string outputPath, double percentOfMap = 0.85)
+    {
+        var heightmap = GenerateEllipticContinent(width, height, percentOfMap);
+        Utils.SaveAsBMP(heightmap, width, height, outputPath);
+    }
 }
