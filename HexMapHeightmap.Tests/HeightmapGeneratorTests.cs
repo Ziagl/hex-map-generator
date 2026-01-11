@@ -1,4 +1,4 @@
-﻿namespace HexMapHeightmap.Tests;
+namespace HexMapHeightmap.Tests;
 
 /// <summary>
 /// Unit tests for HeightmapGenerator that validate data without creating output files
@@ -950,6 +950,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(12345);
+        var saver = new HeightmapExporter(generator);
         int width = 512;
         int height = 512;
         string outputPath = Path.Combine(OutputFolder, "test_white_noise.pgm");
@@ -961,7 +962,7 @@ public sealed class HeightmapGeneratorVisualTests
         }
 
         // Act
-        generator.GenerateAndSaveWhiteNoise(width, height, outputPath);
+        saver.GenerateAndSaveWhiteNoise(width, height, outputPath);
 
         // Assert
         Assert.IsTrue(File.Exists(outputPath), "PGM file was not created");
@@ -977,6 +978,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(12345);
+        var saver = new HeightmapExporter(generator);
         int width = 512;
         int height = 512;
         string outputPath = Path.Combine(OutputFolder, "test_white_noise.bmp");
@@ -988,7 +990,7 @@ public sealed class HeightmapGeneratorVisualTests
         }
 
         // Act
-        generator.GenerateAndSaveWhiteNoiseAsBMP(width, height, outputPath);
+        saver.GenerateAndSaveWhiteNoiseAsBMP(width, height, outputPath);
 
         // Assert
         Assert.IsTrue(File.Exists(outputPath), "BMP file was not created");
@@ -1009,6 +1011,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(999);
+        var saver = new HeightmapExporter(generator);
         var sizes = new (int width, int height, string name)[]
         {
             (128, 128, "small"),
@@ -1027,7 +1030,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSaveWhiteNoiseAsBMP(width, height, outputPath);
+            saver.GenerateAndSaveWhiteNoiseAsBMP(width, height, outputPath);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for {name} was not created");
             var fileInfo = new FileInfo(outputPath);
@@ -1047,6 +1050,7 @@ public sealed class HeightmapGeneratorVisualTests
         foreach (int seed in seeds)
         {
             var generator = new HeightmapGenerator(seed);
+            var saver = new HeightmapExporter(generator);
             string outputPath = Path.Combine(OutputFolder, $"test_white_noise_seed_{seed}.bmp");
 
             if (File.Exists(outputPath))
@@ -1054,7 +1058,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSaveWhiteNoiseAsBMP(width, height, outputPath);
+            saver.GenerateAndSaveWhiteNoiseAsBMP(width, height, outputPath);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for seed {seed} was not created");
             Console.WriteLine($"Seed {seed}: {outputPath}");
@@ -1068,6 +1072,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(777);
+        var saver = new HeightmapExporter(generator);
         var dimensions = new (int width, int height, string name)[]
         {
             (512, 256, "wide"),
@@ -1086,7 +1091,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSaveWhiteNoiseAsBMP(width, height, outputPath);
+            saver.GenerateAndSaveWhiteNoiseAsBMP(width, height, outputPath);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for {name} was not created");
             var fileInfo = new FileInfo(outputPath);
@@ -1099,6 +1104,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(42);
+        var saver = new HeightmapExporter(generator);
         int width = 256;
         int height = 256;
         string pgmPath = Path.Combine(OutputFolder, "test_comparison.pgm");
@@ -1109,11 +1115,12 @@ public sealed class HeightmapGeneratorVisualTests
         if (File.Exists(bmpPath)) File.Delete(bmpPath);
 
         // Act
-        generator.GenerateAndSaveWhiteNoise(width, height, pgmPath);
+        saver.GenerateAndSaveWhiteNoise(width, height, pgmPath);
 
         // Generate a new one with same seed for BMP
         generator = new HeightmapGenerator(42);
-        generator.GenerateAndSaveWhiteNoiseAsBMP(width, height, bmpPath);
+        saver = new HeightmapExporter(generator);
+        saver.GenerateAndSaveWhiteNoiseAsBMP(width, height, bmpPath);
 
         // Assert
         Assert.IsTrue(File.Exists(pgmPath), "PGM file was not created");
@@ -1134,6 +1141,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(12345);
+        var saver = new HeightmapExporter(generator);
         int width = 512;
         int height = 512;
         string outputPath = Path.Combine(OutputFolder, "test_perlin_noise.pgm");
@@ -1145,7 +1153,7 @@ public sealed class HeightmapGeneratorVisualTests
         }
 
         // Act
-        generator.GenerateAndSavePerlinNoise(width, height, outputPath);
+        saver.GenerateAndSavePerlinNoise(width, height, outputPath);
 
         // Assert
         Assert.IsTrue(File.Exists(outputPath), "PGM file was not created");
@@ -1161,6 +1169,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(12345);
+        var saver = new HeightmapExporter(generator);
         int width = 512;
         int height = 512;
         string outputPath = Path.Combine(OutputFolder, "test_perlin_noise.bmp");
@@ -1172,7 +1181,7 @@ public sealed class HeightmapGeneratorVisualTests
         }
 
         // Act
-        generator.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath);
+        saver.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath);
 
         // Assert
         Assert.IsTrue(File.Exists(outputPath), "BMP file was not created");
@@ -1193,6 +1202,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(999);
+        var saver = new HeightmapExporter(generator);
         var sizes = new (int width, int height, string name)[]
         {
             (128, 128, "small"),
@@ -1211,7 +1221,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath);
+            saver.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for {name} was not created");
             var fileInfo = new FileInfo(outputPath);
@@ -1231,6 +1241,7 @@ public sealed class HeightmapGeneratorVisualTests
         foreach (int seed in seeds)
         {
             var generator = new HeightmapGenerator(seed);
+            var saver = new HeightmapExporter(generator);
             string outputPath = Path.Combine(OutputFolder, $"test_perlin_noise_seed_{seed}.bmp");
 
             if (File.Exists(outputPath))
@@ -1238,7 +1249,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath);
+            saver.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for seed {seed} was not created");
             Console.WriteLine($"Seed {seed}: {outputPath}");
@@ -1252,6 +1263,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(777);
+        var saver = new HeightmapExporter(generator);
         int width = 256;
         int height = 256;
         var scales = new[] { 0.01, 0.03, 0.05, 0.1, 0.2 };
@@ -1266,7 +1278,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath, scale: scale);
+            saver.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath, scale: scale);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for scale {scale} was not created");
             Console.WriteLine($"Scale {scale:F2}: {outputPath}");
@@ -1280,6 +1292,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(888);
+        var saver = new HeightmapExporter(generator);
         int width = 256;
         int height = 256;
         var octaves = new[] { 1, 2, 4, 6, 8 };
@@ -1294,7 +1307,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath, octaves: octave);
+            saver.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath, octaves: octave);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for {octave} octaves was not created");
             Console.WriteLine($"Octaves {octave}: {outputPath}");
@@ -1308,6 +1321,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(321);
+        var saver = new HeightmapExporter(generator);
         int width = 256;
         int height = 256;
         var persistenceValues = new[] { 0.2, 0.4, 0.5, 0.6, 0.8 };
@@ -1322,7 +1336,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath, persistence: persistence);
+            saver.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath, persistence: persistence);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for persistence {persistence} was not created");
             Console.WriteLine($"Persistence {persistence:F1}: {outputPath}");
@@ -1336,6 +1350,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(654);
+        var saver = new HeightmapExporter(generator);
         var dimensions = new (int width, int height, string name)[]
         {
             (512, 256, "wide"),
@@ -1354,7 +1369,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath);
+            saver.GenerateAndSavePerlinNoiseAsBMP(width, height, outputPath);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for {name} was not created");
             var fileInfo = new FileInfo(outputPath);
@@ -1367,6 +1382,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(42);
+        var saver = new HeightmapExporter(generator);
         int width = 256;
         int height = 256;
         string pgmPath = Path.Combine(OutputFolder, "test_perlin_comparison.pgm");
@@ -1377,11 +1393,12 @@ public sealed class HeightmapGeneratorVisualTests
         if (File.Exists(bmpPath)) File.Delete(bmpPath);
 
         // Act
-        generator.GenerateAndSavePerlinNoise(width, height, pgmPath);
+        saver.GenerateAndSavePerlinNoise(width, height, pgmPath);
 
         // Generate a new one with same seed for BMP
         generator = new HeightmapGenerator(42);
-        generator.GenerateAndSavePerlinNoiseAsBMP(width, height, bmpPath);
+        saver = new HeightmapExporter(generator);
+        saver.GenerateAndSavePerlinNoiseAsBMP(width, height, bmpPath);
 
         // Assert
         Assert.IsTrue(File.Exists(pgmPath), "PGM file was not created");
@@ -1400,6 +1417,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(999);
+        var saver = new HeightmapExporter(generator);
         int width = 512;
         int height = 512;
         string whiteNoisePath = Path.Combine(OutputFolder, "comparison_white_noise.bmp");
@@ -1410,9 +1428,10 @@ public sealed class HeightmapGeneratorVisualTests
         if (File.Exists(perlinNoisePath)) File.Delete(perlinNoisePath);
 
         // Act
-        generator.GenerateAndSaveWhiteNoiseAsBMP(width, height, whiteNoisePath);
+        saver.GenerateAndSaveWhiteNoiseAsBMP(width, height, whiteNoisePath);
         generator = new HeightmapGenerator(999); // Reset to same seed
-        generator.GenerateAndSavePerlinNoiseAsBMP(width, height, perlinNoisePath);
+        saver = new HeightmapExporter(generator);
+        saver.GenerateAndSavePerlinNoiseAsBMP(width, height, perlinNoisePath);
 
         // Assert
         Assert.IsTrue(File.Exists(whiteNoisePath), "White noise file was not created");
@@ -1430,6 +1449,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(12345);
+        var saver = new HeightmapExporter(generator);
         int width = 512;
         int height = 512;
         string outputPath = Path.Combine(OutputFolder, "test_elliptic_continent.pgm");
@@ -1441,7 +1461,7 @@ public sealed class HeightmapGeneratorVisualTests
         }
 
         // Act
-        generator.GenerateAndSaveEllipticContinent(width, height, outputPath);
+        saver.GenerateAndSaveEllipticContinent(width, height, outputPath);
 
         // Assert
         Assert.IsTrue(File.Exists(outputPath), "PGM file was not created");
@@ -1457,6 +1477,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(12345);
+        var saver = new HeightmapExporter(generator);
         int width = 512;
         int height = 512;
         string outputPath = Path.Combine(OutputFolder, "test_elliptic_continent.bmp");
@@ -1468,7 +1489,7 @@ public sealed class HeightmapGeneratorVisualTests
         }
 
         // Act
-        generator.GenerateAndSaveEllipticContinentAsBMP(width, height, outputPath);
+        saver.GenerateAndSaveEllipticContinentAsBMP(width, height, outputPath);
 
         // Assert
         Assert.IsTrue(File.Exists(outputPath), "BMP file was not created");
@@ -1489,6 +1510,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(999);
+        var saver = new HeightmapExporter(generator);
         var sizes = new (int width, int height, string name)[]
         {
             (128, 128, "small"),
@@ -1507,7 +1529,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSaveEllipticContinentAsBMP(width, height, outputPath);
+            saver.GenerateAndSaveEllipticContinentAsBMP(width, height, outputPath);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for {name} was not created");
             var fileInfo = new FileInfo(outputPath);
@@ -1527,6 +1549,7 @@ public sealed class HeightmapGeneratorVisualTests
         foreach (int seed in seeds)
         {
             var generator = new HeightmapGenerator(seed);
+            var saver = new HeightmapExporter(generator);
             string outputPath = Path.Combine(OutputFolder, $"test_elliptic_continent_seed_{seed}.bmp");
 
             if (File.Exists(outputPath))
@@ -1534,7 +1557,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSaveEllipticContinentAsBMP(width, height, outputPath);
+            saver.GenerateAndSaveEllipticContinentAsBMP(width, height, outputPath);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for seed {seed} was not created");
             Console.WriteLine($"Seed {seed}: {outputPath}");
@@ -1548,6 +1571,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(777);
+        var saver = new HeightmapExporter(generator);
         int width = 256;
         int height = 256;
         var percentages = new[] { 0.5, 0.65, 0.75, 0.85, 0.95 };
@@ -1562,7 +1586,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSaveEllipticContinentAsBMP(width, height, outputPath, percentOfMap: percentage);
+            saver.GenerateAndSaveEllipticContinentAsBMP(width, height, outputPath, percentOfMap: percentage);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for percentage {percentage} was not created");
             Console.WriteLine($"Percentage {percentage:F2}: {outputPath}");
@@ -1576,6 +1600,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(654);
+        var saver = new HeightmapExporter(generator);
         var dimensions = new (int width, int height, string name)[]
         {
             (512, 256, "wide"),
@@ -1594,7 +1619,7 @@ public sealed class HeightmapGeneratorVisualTests
                 File.Delete(outputPath);
             }
 
-            generator.GenerateAndSaveEllipticContinentAsBMP(width, height, outputPath);
+            saver.GenerateAndSaveEllipticContinentAsBMP(width, height, outputPath);
 
             Assert.IsTrue(File.Exists(outputPath), $"BMP file for {name} was not created");
             var fileInfo = new FileInfo(outputPath);
@@ -1607,6 +1632,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(42);
+        var saver = new HeightmapExporter(generator);
         int width = 256;
         int height = 256;
         string pgmPath = Path.Combine(OutputFolder, "test_elliptic_comparison.pgm");
@@ -1617,11 +1643,12 @@ public sealed class HeightmapGeneratorVisualTests
         if (File.Exists(bmpPath)) File.Delete(bmpPath);
 
         // Act
-        generator.GenerateAndSaveEllipticContinent(width, height, pgmPath);
+        saver.GenerateAndSaveEllipticContinent(width, height, pgmPath);
 
         // Generate a new one with same seed for BMP
         generator = new HeightmapGenerator(42);
-        generator.GenerateAndSaveEllipticContinentAsBMP(width, height, bmpPath);
+        saver = new HeightmapExporter(generator);
+        saver.GenerateAndSaveEllipticContinentAsBMP(width, height, bmpPath);
 
         // Assert
         Assert.IsTrue(File.Exists(pgmPath), "PGM file was not created");
@@ -1640,6 +1667,7 @@ public sealed class HeightmapGeneratorVisualTests
     {
         // Arrange
         var generator = new HeightmapGenerator(999);
+        var saver = new HeightmapExporter(generator);
         int width = 512;
         int height = 512;
         string whiteNoisePath = Path.Combine(OutputFolder, "comparison_all_white_noise.bmp");
@@ -1652,11 +1680,13 @@ public sealed class HeightmapGeneratorVisualTests
         if (File.Exists(ellipticContinentPath)) File.Delete(ellipticContinentPath);
 
         // Act
-        generator.GenerateAndSaveWhiteNoiseAsBMP(width, height, whiteNoisePath);
+        saver.GenerateAndSaveWhiteNoiseAsBMP(width, height, whiteNoisePath);
         generator = new HeightmapGenerator(999); // Reset to same seed
-        generator.GenerateAndSavePerlinNoiseAsBMP(width, height, perlinNoisePath);
+        saver = new HeightmapExporter(generator);
+        saver.GenerateAndSavePerlinNoiseAsBMP(width, height, perlinNoisePath);
         generator = new HeightmapGenerator(999); // Reset to same seed
-        generator.GenerateAndSaveEllipticContinentAsBMP(width, height, ellipticContinentPath);
+        saver = new HeightmapExporter(generator);
+        saver.GenerateAndSaveEllipticContinentAsBMP(width, height, ellipticContinentPath);
 
         // Assert
         Assert.IsTrue(File.Exists(whiteNoisePath), "White noise file was not created");
