@@ -1,4 +1,4 @@
-namespace HexMapHeightmap.Tests;
+namespace com.hexagonsimulations.HexMapHeightmap.Tests;
 
 /// <summary>
 /// Unit tests for HeightmapGenerator that validate data without creating output files

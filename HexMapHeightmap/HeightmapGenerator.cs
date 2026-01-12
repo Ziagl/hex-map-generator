@@ -1,6 +1,6 @@
-﻿using HexMapHeightmap.Models;
+﻿using com.hexagonsimulations.HexMapHeightmap.Models;
 
-namespace HexMapHeightmap;
+namespace com.hexagonsimulations.HexMapHeightmap;
 
 /// <summary>
 /// Generates heightmap images using various noise algorithms

@@ -1,6 +1,6 @@
-using HexMapHeightmap.Models;
+using com.hexagonsimulations.HexMapHeightmap.Models;
 
-namespace HexMapHeightmap;
+namespace com.hexagonsimulations.HexMapHeightmap;
 
 /// <summary>
 /// Provides methods to generate and save heightmaps to files in various formats

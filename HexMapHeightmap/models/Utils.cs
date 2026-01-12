@@ -1,4 +1,4 @@
-﻿namespace HexMapHeightmap.Models;
+﻿namespace com.hexagonsimulations.HexMapHeightmap.Models;
 
 internal class Utils
 {
