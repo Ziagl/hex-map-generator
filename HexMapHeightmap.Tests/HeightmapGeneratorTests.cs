@@ -1,3 +1,5 @@
+using com.hexagonsimulations.HexMapHeightmap.Tests.Models;
+
 namespace com.hexagonsimulations.HexMapHeightmap.Tests;
 
 /// <summary>
@@ -816,6 +818,134 @@ public sealed class HeightmapGeneratorDataTests
 
         // Act & Assert
         Assert.Throws<ArgumentException>(() => generator.GenerateEllipticContinent(100, -10));
+    }
+
+    [TestMethod]
+    public void BlendHeightmaps_ValidInputs_ReturnsCorrectSize()
+    {
+        // Arrange
+        var generator = new HeightmapGenerator();
+        int width = 100;
+        int height = 50;
+        var heightmap1 = generator.GeneratePerlinNoise(width, height);
+        var heightmap2 = generator.GenerateEllipticContinent(width, height);
+
+        // Act
+        var blended = generator.BlendHeightmaps(heightmap1, heightmap2, 0.75);
+
+        // Assert
+        Assert.AreEqual(width, blended.GetLength(0));
+        Assert.AreEqual(height, blended.GetLength(1));
+    }
+
+    [TestMethod]
+    public void BlendHeightmaps_Factor0_ReturnsSecondHeightmap()
+    {
+        // Arrange
+        var generator = new HeightmapGenerator(12345);
+        int width = 50;
+        int height = 50;
+        var heightmap1 = generator.GeneratePerlinNoise(width, height);
+        var heightmap2 = generator.GenerateEllipticContinent(width, height);
+
+        // Act
+        var blended = generator.BlendHeightmaps(heightmap1, heightmap2, 0.0);
+
+        // Assert - factor 0.0 means 100% of heightmap2
+        const double epsilon = 1e-10;
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                Assert.AreEqual(heightmap2[x, y], blended[x, y], epsilon, $"Pixel mismatch at ({x}, {y})");
+            }
+        }
+    }
+
+    [TestMethod]
+    public void BlendHeightmaps_Factor1_ReturnsFirstHeightmap()
+    {
+        // Arrange
+        var generator = new HeightmapGenerator(12345);
+        int width = 50;
+        int height = 50;
+        var heightmap1 = generator.GeneratePerlinNoise(width, height);
+        var heightmap2 = generator.GenerateEllipticContinent(width, height);
+
+        // Act
+        var blended = generator.BlendHeightmaps(heightmap1, heightmap2, 1.0);
+
+        // Assert - factor 1.0 means 100% of heightmap1
+        const double epsilon = 1e-10;
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                Assert.AreEqual(heightmap1[x, y], blended[x, y], epsilon, $"Pixel mismatch at ({x}, {y})");
+            }
+        }
+    }
+
+    [TestMethod]
+    public void BlendHeightmaps_DimensionMismatch_ThrowsException()
+    {
+        // Arrange
+        var generator = new HeightmapGenerator();
+        var heightmap1 = generator.GeneratePerlinNoise(100, 100);
+        var heightmap2 = generator.GenerateEllipticContinent(50, 50);
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => generator.BlendHeightmaps(heightmap1, heightmap2, 0.5));
+    }
+
+    [TestMethod]
+    public void BlendHeightmaps_InvalidFactorTooLow_ThrowsException()
+    {
+        // Arrange
+        var generator = new HeightmapGenerator();
+        var heightmap1 = generator.GeneratePerlinNoise(100, 100);
+        var heightmap2 = generator.GenerateEllipticContinent(100, 100);
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => generator.BlendHeightmaps(heightmap1, heightmap2, -0.1));
+    }
+
+    [TestMethod]
+    public void BlendHeightmaps_InvalidFactorTooHigh_ThrowsException()
+    {
+        // Arrange
+        var generator = new HeightmapGenerator();
+        var heightmap1 = generator.GeneratePerlinNoise(100, 100);
+        var heightmap2 = generator.GenerateEllipticContinent(100, 100);
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => generator.BlendHeightmaps(heightmap1, heightmap2, 1.1));
+    }
+
+    [TestMethod]
+    public void BlendHeightmaps_AllValuesInValidRange()
+    {
+        // Arrange
+        var generator = new HeightmapGenerator();
+        int width = 100;
+        int height = 100;
+        var heightmap1 = generator.GeneratePerlinNoise(width, height);
+        var heightmap2 = generator.GenerateEllipticContinent(width, height);
+
+        // Act
+        var blended = generator.BlendHeightmaps(heightmap1, heightmap2, 0.75);
+
+        // Assert
+        const double epsilon = 1e-10;
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                double value = blended[x, y];
+                Assert.IsTrue(value >= 0.0 - epsilon && value <= 1.0 + epsilon, 
+                    $"Value at ({x}, {y}) is {value}, expected 0.0-1.0");
+            }
+        }
     }
 
     [TestMethod]
@@ -1700,6 +1830,73 @@ public sealed class HeightmapGeneratorVisualTests
         Console.WriteLine("- White Noise: Pure random values");
         Console.WriteLine("- Perlin Noise: Smooth gradient noise");
         Console.WriteLine("- Elliptic Continent: Centered elliptical falloff simulating a landmass");
+    }
+
+    [TestMethod]
+    public void GenerateAndSaveBlendedPerlinElliptic_Factor75_CreatesFile()
+    {
+        // Arrange
+        var generator = new HeightmapGenerator(12345);
+        var saver = new HeightmapExporter(generator);
+        int width = 512;
+        int height = 512;
+        double factor = 0.75;
+        string outputPath = Path.Combine(OutputFolder, "blended_perlin_elliptic_0.75.bmp");
+
+        // Clean up any existing file
+        if (File.Exists(outputPath))
+        {
+            File.Delete(outputPath);
+        }
+
+        // Act
+        saver.GenerateAndSaveBlendedPerlinEllipticAsBMP(width, height, outputPath, factor);
+
+        // Assert
+        Assert.IsTrue(File.Exists(outputPath), "BMP file was not created");
+        var fileInfo = new FileInfo(outputPath);
+        Assert.IsGreaterThan(0, fileInfo.Length, "BMP file is empty");
+
+        Console.WriteLine($"Blended heightmap (factor {factor}) saved to: {outputPath}");
+        Console.WriteLine($"File size: {fileInfo.Length:N0} bytes");
+        Console.WriteLine($"Blend: {factor * 100}% Perlin noise + {(1 - factor) * 100}% Elliptic continent");
+    }
+
+    [TestMethod]
+    public void GenerateBlendedHeightmaps_VariousFactors_CreatesFiles()
+    {
+        // Arrange
+        int width = 512;
+        int height = 512;
+        double[] factors = { 0.0, 0.25, 0.5, 0.75, 1.0 };
+
+        foreach (double factor in factors)
+        {
+            var generator = new HeightmapGenerator(12345);
+            var saver = new HeightmapExporter(generator);
+            string outputPath = Path.Combine(OutputFolder, $"blended_perlin_elliptic_{factor:F2}.bmp");
+
+            // Clean up any existing file
+            if (File.Exists(outputPath))
+            {
+                File.Delete(outputPath);
+            }
+
+            // Act
+            saver.GenerateAndSaveBlendedPerlinEllipticAsBMP(width, height, outputPath, factor);
+
+            // Assert
+            Assert.IsTrue(File.Exists(outputPath), $"BMP file was not created for factor {factor}");
+
+            Console.WriteLine($"Factor {factor}: {factor * 100}% Perlin + {(1 - factor) * 100}% Elliptic -> {outputPath}");
+        }
+
+        Console.WriteLine("\nCompare these files to see how different blend factors affect the result:");
+        Console.WriteLine("- 0.0: Pure elliptic continent");
+        Console.WriteLine("- 0.25: 25% Perlin noise details on elliptic base");
+        Console.WriteLine("- 0.5: Equal blend of both");
+        Console.WriteLine("- 0.75: Strong Perlin noise with elliptic influence");
+        Console.WriteLine("- 1.0: Pure Perlin noise");
     }
 
     [TestCleanup]

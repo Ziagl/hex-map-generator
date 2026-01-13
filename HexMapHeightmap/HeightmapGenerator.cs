@@ -260,4 +260,54 @@ public class HeightmapGenerator
 
         return heightmap;
     }
+
+    /// <summary>
+    /// Blends two heightmaps together using a weighted average
+    /// </summary>
+    /// <param name="heightmap1">The first heightmap</param>
+    /// <param name="heightmap2">The second heightmap</param>
+    /// <param name="factor">Blending factor (0.0-1.0). A value of 0.75 means 75% of heightmap1 and 25% of heightmap2</param>
+    /// <returns>A new blended heightmap</returns>
+    /// <exception cref="ArgumentException">Thrown when heightmaps have different dimensions or factor is outside valid range</exception>
+    public double[,] BlendHeightmaps(double[,] heightmap1, double[,] heightmap2, double factor)
+    {
+        if (heightmap1 == null)
+        {
+            throw new ArgumentException("First heightmap cannot be null");
+        }
+
+        if (heightmap2 == null)
+        {
+            throw new ArgumentException("Second heightmap cannot be null");
+        }
+
+        int width1 = heightmap1.GetLength(0);
+        int height1 = heightmap1.GetLength(1);
+        int width2 = heightmap2.GetLength(0);
+        int height2 = heightmap2.GetLength(1);
+
+        if (width1 != width2 || height1 != height2)
+        {
+            throw new ArgumentException($"Heightmap dimensions must match. First: {width1}x{height1}, Second: {width2}x{height2}");
+        }
+
+        if (factor < 0.0 || factor > 1.0)
+        {
+            throw new ArgumentException($"Factor must be between 0.0 and 1.0, got {factor}");
+        }
+
+        var blended = new double[width1, height1];
+        double inverseFactor = 1.0 - factor;
+
+        for (int y = 0; y < height1; y++)
+        {
+            for (int x = 0; x < width1; x++)
+            {
+                double value = (heightmap1[x, y] * factor) + (heightmap2[x, y] * inverseFactor);
+                blended[x, y] = Math.Max(0.0, Math.Min(1.0, value));
+            }
+        }
+
+        return blended;
+    }
 }

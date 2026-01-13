@@ -1,6 +1,4 @@
-using com.hexagonsimulations.HexMapHeightmap.Models;
-
-namespace com.hexagonsimulations.HexMapHeightmap;
+namespace com.hexagonsimulations.HexMapHeightmap.Tests.Models;
 
 /// <summary>
 /// Provides methods to generate and save heightmaps to files in various formats
@@ -98,5 +96,26 @@ public class HeightmapExporter
     {
         var heightmap = _generator.GenerateEllipticContinent(width, height, percentOfMap);
         Utils.SaveAsBMP(heightmap, width, height, outputPath);
+    }
+
+    /// <summary>
+    /// Generates a blended heightmap combining Perlin noise and elliptic continent, and saves it to a file as a BMP image
+    /// </summary>
+    /// <param name="width">Width of the heightmap in pixels</param>
+    /// <param name="height">Height of the heightmap in pixels</param>
+    /// <param name="outputPath">Path where the heightmap image will be saved (BMP format)</param>
+    /// <param name="factor">Blending factor (0.0-1.0). A value of 0.75 means 75% Perlin noise and 25% elliptic continent</param>
+    /// <param name="scale">Scale factor for the Perlin noise. Default is 0.05.</param>
+    /// <param name="octaves">Number of noise layers for Perlin noise. Default is 4.</param>
+    /// <param name="persistence">Amplitude decay factor for Perlin noise. Default is 0.5.</param>
+    /// <param name="lacunarity">Frequency increase factor for Perlin noise. Default is 2.0.</param>
+    /// <param name="percentOfMap">Percentage of map covered by the ellipse. Default is 0.85.</param>
+    public void GenerateAndSaveBlendedPerlinEllipticAsBMP(int width, int height, string outputPath, double factor, 
+        double scale = 0.05, int octaves = 4, double persistence = 0.5, double lacunarity = 2.0, double percentOfMap = 0.85)
+    {
+        var perlinHeightmap = _generator.GeneratePerlinNoise(width, height, scale, octaves, persistence, lacunarity);
+        var ellipticHeightmap = _generator.GenerateEllipticContinent(width, height, percentOfMap);
+        var blendedHeightmap = _generator.BlendHeightmaps(perlinHeightmap, ellipticHeightmap, factor);
+        Utils.SaveAsBMP(blendedHeightmap, width, height, outputPath);
     }
 }
