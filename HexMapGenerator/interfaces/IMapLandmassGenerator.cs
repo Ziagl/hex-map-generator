@@ -2,7 +2,7 @@
 
 namespace com.hexagonsimulations.HexMapGenerator.Interfaces;
 
-internal interface IMapTerrainGenerator
+internal interface IMapLandmassGenerator
 {
     void Generate(MapData data);
 }

@@ -1,29 +1,35 @@
-﻿using com.hexagonsimulations.HexMapGenerator.Enums;
+﻿using com.hexagonsimulations.HexMapGenerator;
+using com.hexagonsimulations.HexMapGenerator.Enums;
 using com.hexagonsimulations.HexMapGenerator.Interfaces;
 using com.hexagonsimulations.HexMapGenerator.Models;
 
-namespace com.hexagonsimulations.HexMapGenerator.Generators;
+namespace HexMapGenerator.Generators.Heightmap;
 
-internal class SuperContinentGenerator : IMapTerrainGenerator
+internal class InlandSeaGenerator : IMapHeightmapGenerator
 {
-    private readonly float _factorLand = 0.7f;
-    private readonly float _factorMountain = 0.05f;
-    private readonly float _factorHills = 0.08f;
+    private readonly float _factorWater = 0.3f;
+    private readonly float _factorMountain = 0.1f;
+    private readonly float _factorHills = 0.1f;
 
-    public void Generate(MapData map)
+    public void GenerateHeightmap(MapData map)
+    {
+
+    }
+
+    /*public void Generate(MapData map)
     {
         // create empty grid
         List<Tile> grid = Enumerable.Repeat(new Tile(), map.Rows * map.Columns).ToList();
 
         // 1. create a plain map
-        Utils.InitializeHexGrid(grid, map.Rows, map.Columns, TerrainType.SHALLOW_WATER);
+        Utils.InitializeHexGrid(grid, map.Rows, map.Columns, TerrainType.PLAIN);
 
-        // 2. create super continent landmass
-        int landTiles = (int)(grid.Count * this._factorLand);
-        int tileFactor = landTiles / 6;
-        int landCounter = Generator.random.Next(tileFactor / 2, tileFactor); // number of landmasses (sixth or seventh of max number of tiles)
-        List<Tile> plainTiles = new();
-        for (int i = 0; i < landCounter; ++i)
+        // 2. add a lake in the middle of map
+        int waterTiles = (int)(grid.Count * this._factorWater);
+        int tileFactor = waterTiles / 5;
+        int lakeCounter = Generator.random.Next(tileFactor / 2, tileFactor + 1); // number of lakes (fifth, sixth or seventh of max number of tiles)
+        List<Tile> lakeTiles = new();
+        for(int i = 0; i < lakeCounter; ++i)
         {
             Tile? tile = null;
             int rowBorder = map.Rows / 5;
@@ -32,37 +38,30 @@ internal class SuperContinentGenerator : IMapTerrainGenerator
             do
             {
                 tile = Utils.RandomTile(grid, map.Rows, map.Columns);
-                if (tile is not null)
+                if(tile is not null)
                 {
                     var coords = tile.Coordinates.ToOffset();
-                    if (coords.y >= rowBorder &&
+                    if(coords.y >= rowBorder &&
                        coords.y < map.Rows - rowBorder &&
                        coords.x >= columnBorder &&
                        coords.x < map.Columns - columnBorder)
                     {
-                        tile.terrain = TerrainType.PLAIN;
-                        --landTiles;
-                        plainTiles.Add(tile);
+                        tile.terrain = TerrainType.SHALLOW_WATER;
+                        --waterTiles;
+                        lakeTiles.Add(tile);
                         break;
                     }
                 }
                 --loopMax;
-            } while (loopMax > 0 && landTiles > 0);
+            } while (loopMax > 0 && waterTiles > 0);
         }
-        int randomSeeds = Generator.random.Next(5, 15);
-        Utils.AddRandomTileSeed(grid, map.Rows, map.Columns, plainTiles, TerrainType.PLAIN, TerrainType.SHALLOW_WATER, randomSeeds, landTiles);
+        int randomSeeds = Generator.random.Next(5, 16);
+        Utils.AddRandomTileSeed(grid, map.Rows, map.Columns, lakeTiles, TerrainType.SHALLOW_WATER, TerrainType.PLAIN, randomSeeds, waterTiles);
 
-        // 3. expand land
-        Utils.ExpandLand(grid, map.Rows, map.Columns, plainTiles, landTiles);
-
-        // 4. add lakes
-        int lakeSeeds = Generator.random.Next(10, 21);
-        int waterTiles = lakeSeeds * Generator.random.Next(4, 8);
-        List<Tile> lakeTiles = new();
-        Utils.AddRandomTileSeed(grid, map.Rows, map.Columns, lakeTiles, TerrainType.SHALLOW_WATER, TerrainType.PLAIN, lakeSeeds, waterTiles);
-        // expand lakes
+        // 3. expand lakes
         Utils.ExpandWater(grid, map.Rows, map.Columns, lakeTiles, waterTiles);
-        // create deep water tiles
+
+        // 4. create deep water tiles
         Utils.ShallowToDeepWater(grid, map.Rows, map.Columns);
 
         // 5. create random hills
@@ -80,5 +79,5 @@ internal class SuperContinentGenerator : IMapTerrainGenerator
         Utils.HillsToMountains(grid, map.Rows, map.Columns, mountainTiles);
 
         map.TerrainMap = Utils.ConvertGrid(grid);
-    }
+    }*/
 }

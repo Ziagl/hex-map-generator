@@ -1052,4 +1052,74 @@ internal class Utils
         }
         return (double)count / types.Count;
     }
+
+    /// <summary>
+    /// Counts all connected landmasses (non-water tiles) that meet the minimum size threshold.
+    /// </summary>
+    /// <param name="map">Flat terrain map in row-major order</param>
+    /// <param name="xdim">Number of columns</param>
+    /// <param name="ydim">Number of rows</param>
+    /// <param name="waterTiles">List of water terrain type IDs to exclude</param>
+    /// <param name="threshold">Minimum landmass size (number of tiles)</param>
+    /// <returns>Tuple containing count of valid landmasses and list of landmasses meeting threshold</returns>
+    internal static (int count, List<List<int>> landmasses) CountLandmasses(List<int> map, int xdim, int ydim, List<int> waterTiles, int threshold)
+    {
+        var visited = new HashSet<int>();
+        var validLandmasses = new List<List<int>>();
+        int count = 0;
+        
+        for (int index = 0; index < xdim * ydim; index++)
+        {
+            if (visited.Contains(index) || waterTiles.Contains(map[index]))
+            {
+                continue;
+            }
+            
+            // start BFS flood-fill algorithm from this unvisited land tile
+            var currentLandmass = new List<int>();
+            var queue = new Queue<int>();
+            queue.Enqueue(index);
+            visited.Add(index);
+            
+            while (queue.Count > 0)
+            {
+                int currentIndex = queue.Dequeue();
+                currentLandmass.Add(currentIndex);
+                
+                int x = currentIndex % xdim;
+                int y = currentIndex / xdim;
+                var cubeCoord = new OffsetCoordinates(x, y).ToCubic();
+                
+                // check all 6 hexagonal neighbors
+                foreach (Direction direction in Enum.GetValues(typeof(Direction)))
+                {
+                    var neighborCube = cubeCoord.Neighbor(direction);
+                    var neighborOffset = neighborCube.ToOffset();
+                    
+                    // validate bounds
+                    if (neighborOffset.x < 0 || neighborOffset.x >= xdim ||
+                        neighborOffset.y < 0 || neighborOffset.y >= ydim)
+                        continue;
+                    
+                    int neighborIndex = neighborOffset.y * xdim + neighborOffset.x;
+                    
+                    // if not visited and not water, add to queue
+                    if (!visited.Contains(neighborIndex) && !waterTiles.Contains(map[neighborIndex]))
+                    {
+                        queue.Enqueue(neighborIndex);
+                        visited.Add(neighborIndex);
+                    }
+                }
+            }
+            
+            // only count and store landmasses that meet the threshold
+            if (currentLandmass.Count >= threshold)
+            {
+                validLandmasses.Add(currentLandmass);
+                count++;
+            }
+        }
+        
+        return (count, validLandmasses);
+    }
 }

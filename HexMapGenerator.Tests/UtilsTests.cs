@@ -175,4 +175,74 @@ public sealed class UtilsTests
         double percentage = Utils.MatchPercentage(map, types);
         Assert.AreEqual(0.3125, percentage);
     }
+
+    [TestMethod]
+    public void TestCountLandmasses()
+    {
+        // Test map with 2 water tiles (1) and land tiles forming 2 landmasses (3,4,5)
+        // Map layout (4x5):
+        // 1 1 1 1 1    (water row)
+        // 1 3 3 1 5    (landmass 1: 2 tiles, landmass 2: 1 tile)
+        // 1 3 1 1 5    (continues landmass 1 and 2)
+        // 1 4 4 1 1    (landmass 1 continues)
+        var map = new List<int>() {
+            1, 1, 1, 1, 1,
+            1, 3, 3, 1, 5,
+            1, 3, 1, 1, 5,
+            1, 4, 4, 1, 1
+        };
+        var waterTiles = new List<int>() { 1, 2 };
+        
+        // Test with threshold = 1 (all landmasses count)
+        var (count, landmasses) = Utils.CountLandmasses(map, 5, 4, waterTiles, 1);
+        Assert.AreEqual(2, count, "Should find 2 landmasses with threshold 1");
+        Assert.HasCount(2, landmasses, "Should return 2 landmasses");
+        
+        // Find the larger landmass (should be 5 tiles: indices 6,7,11,16,17)
+        var largerLandmass = landmasses.OrderByDescending(l => l.Count).First();
+        Assert.HasCount(5, largerLandmass, "Larger landmass should have 5 tiles");
+        
+        // Find the smaller landmass (should be 2 tiles: indices 9,14)
+        var smallerLandmass = landmasses.OrderBy(l => l.Count).First();
+        Assert.HasCount(2, smallerLandmass, "Smaller landmass should have 2 tiles");
+        
+        // Test with threshold = 3 (only landmass with 5 tiles counts)
+        var (count2, landmasses2) = Utils.CountLandmasses(map, 5, 4, waterTiles, 3);
+        Assert.AreEqual(1, count2, "Should find 1 landmass with threshold 3");
+        Assert.HasCount(1, landmasses2, "Should return 1 landmass meeting threshold");
+        Assert.HasCount(5, landmasses2[0], "Returned landmass should have 5 tiles");
+        
+        // Test with threshold = 10 (no landmasses meet threshold)
+        var (count3, landmasses3) = Utils.CountLandmasses(map, 5, 4, waterTiles, 10);
+        Assert.AreEqual(0, count3, "Should find 0 landmasses with threshold 10");
+        Assert.HasCount(0, landmasses3, "Should return empty list");
+    }
+
+    [TestMethod]
+    public void TestCountLandmassesSingleLandmass()
+    {
+        // All land tiles forming one connected landmass
+        var map = new List<int>() {
+            3, 3, 3,
+            3, 1, 3,
+            3, 3, 3
+        };
+        var waterTiles = new List<int>() { 1 };
+        
+        var (count, landmasses) = Utils.CountLandmasses(map, 3, 3, waterTiles, 1);
+        Assert.AreEqual(1, count, "Should find 1 connected landmass");
+        Assert.HasCount(8, landmasses[0], "Landmass should have 8 tiles (all except center)");
+    }
+
+    [TestMethod]
+    public void TestCountLandmassesAllWater()
+    {
+        // All water - no landmasses
+        var map = new List<int>() { 1, 1, 1, 1, 2, 2, 2, 2 };
+        var waterTiles = new List<int>() { 1, 2 };
+        
+        var (count, landmasses) = Utils.CountLandmasses(map, 4, 2, waterTiles, 1);
+        Assert.AreEqual(0, count, "Should find 0 landmasses");
+        Assert.HasCount(0, landmasses, "Should return empty list");
+    }
 }

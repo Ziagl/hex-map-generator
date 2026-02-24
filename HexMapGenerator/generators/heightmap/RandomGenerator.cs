@@ -1,11 +1,18 @@
-﻿using com.hexagonsimulations.HexMapGenerator.Enums;
+﻿using com.hexagonsimulations.HexMapGenerator;
+using com.hexagonsimulations.HexMapGenerator.Enums;
 using com.hexagonsimulations.HexMapGenerator.Interfaces;
 using com.hexagonsimulations.HexMapGenerator.Models;
 
-namespace com.hexagonsimulations.HexMapGenerator.Generators;
+namespace HexMapGenerator.Generators.Heightmap;
 
-internal class RandomGenerator : IMapTerrainGenerator
+internal class RandomGenerator : IMapHeightmapGenerator
 {
+    public void GenerateHeightmap(MapData map)
+    {
+
+    }
+
+    /*
     public void Generate(MapData map)
     {
         var terrainTypeRange = Utils.GetMinMaxValues<TerrainType>();
@@ -19,5 +26,5 @@ internal class RandomGenerator : IMapTerrainGenerator
         }
 
         map.TerrainMap = grid;
-    }
+    }*/
 }

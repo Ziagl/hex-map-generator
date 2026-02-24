@@ -18,6 +18,7 @@ public record MapData
 
     public int Rows { get; set; }
     public int Columns { get; set; }
+    public int Seed { get; set; }
 
     public MapType Type { get; set; } = MapType.RANDOM;
     public MapSize Size { get; set; } = MapSize.MEDIUM;
@@ -64,6 +65,7 @@ public record MapData
 
         writer.Write(Rows);
         writer.Write(Columns);
+        writer.Write(Seed);
         writer.Write((int)Type);
         writer.Write((int)Size);
         writer.Write((int)Temperature);
@@ -114,6 +116,7 @@ public record MapData
         {
             Rows = reader.ReadInt32(),
             Columns = reader.ReadInt32(),
+            Seed = reader.ReadInt32(),
             Type = (MapType)reader.ReadInt32(),
             Size = (MapSize)reader.ReadInt32(),
             Temperature = (MapTemperature)reader.ReadInt32(),

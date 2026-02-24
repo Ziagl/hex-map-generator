@@ -9,7 +9,7 @@ namespace com.hexagonsimulations.HexMapGenerator.Tests;
 public sealed class MapDataSerializationTests
 {
     private readonly string TempDir = @"C:\Temp\";
-    private readonly bool DumpToDisk = false; // set to true to dump serialized data to disk for inspection
+    private readonly bool DumpToDisk = true; // set to true to dump serialized data to disk for inspection
 
     [TestMethod]
     public void MapData_Json()
@@ -88,6 +88,7 @@ public sealed class MapDataSerializationTests
     {
         Assert.AreEqual(expected.Rows, actual.Rows, "Rows mismatch.");
         Assert.AreEqual(expected.Columns, actual.Columns, "Columns mismatch.");
+        Assert.AreEqual(expected.Seed, actual.Seed, "Seed mismatch.");
         Assert.AreEqual(expected.Type, actual.Type, "MapType mismatch.");
         Assert.AreEqual(expected.Size, actual.Size, "MapSize mismatch.");
         Assert.AreEqual(expected.Temperature, actual.Temperature, "MapTemperature mismatch.");

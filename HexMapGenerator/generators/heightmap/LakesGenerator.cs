@@ -1,16 +1,22 @@
-﻿using com.hexagonsimulations.HexMapGenerator.Enums;
+﻿using com.hexagonsimulations.HexMapGenerator;
+using com.hexagonsimulations.HexMapGenerator.Enums;
 using com.hexagonsimulations.HexMapGenerator.Interfaces;
 using com.hexagonsimulations.HexMapGenerator.Models;
 
-namespace com.hexagonsimulations.HexMapGenerator.Generators;
+namespace HexMapGenerator.Generators.Heightmap;
 
-internal class HighlandGenerator : IMapTerrainGenerator
+internal class LakesGenerator : IMapHeightmapGenerator
 {
-    private readonly float _factorWater = 0.15f;
-    private readonly float _factorMountain = 0.1f;
-    private readonly float _factorHills = 0.2f;
+    private readonly float _factorWater = 0.2f;
+    private readonly float _factorMountain = 0.06f;
+    private readonly float _factorHills = 0.07f;
 
-    public void Generate(MapData map)
+    public void GenerateHeightmap(MapData map)
+    {
+
+    }
+
+    /*public void Generate(MapData map)
     {
         // create empty grid
         List<Tile> grid = Enumerable.Repeat(new Tile(), map.Rows * map.Columns).ToList();
@@ -20,7 +26,7 @@ internal class HighlandGenerator : IMapTerrainGenerator
 
         // 2. add randomly lakes
         int waterTiles = (int)(grid.Count * this._factorWater);
-        int lakeCounter = waterTiles / Generator.random.Next(5, 8); // number of lakes (fifth, sixth or seventh of max number of tiles)
+        int lakeCounter = waterTiles / Generator.random.Next(15, 30); // number of lakes (fifth, sixth or seventh of max number of tiles)
         List<Tile> lakeTiles = new();
         Utils.AddRandomTileSeed(grid, map.Rows, map.Columns, lakeTiles, TerrainType.SHALLOW_WATER, TerrainType.PLAIN, lakeCounter, waterTiles);
 
@@ -45,5 +51,5 @@ internal class HighlandGenerator : IMapTerrainGenerator
         Utils.HillsToMountains(grid, map.Rows, map.Columns, mountainTiles);
 
         map.TerrainMap = Utils.ConvertGrid(grid);
-    }
+    }*/
 }

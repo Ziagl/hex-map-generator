@@ -33,7 +33,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HexMapBase" Version="0.5.1" />
+    <PackageReference Include="HexMapBase" Version="0.5.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HexMapHeightmap\HexMapHeightmap.csproj" />
   </ItemGroup>
 
 </Project>

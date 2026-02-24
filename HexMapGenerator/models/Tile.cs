@@ -9,4 +9,5 @@ public class Tile : HexTile
     public LandscapeType landscape = LandscapeType.NONE;
     public RiverType river = RiverType.NONE;
     public int continentSeed = 0;
+    public double elevation = 0.0;
 }

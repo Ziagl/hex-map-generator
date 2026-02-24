@@ -1,18 +1,24 @@
 ﻿using com.hexagonsimulations.HexMapBase.Models;
+using com.hexagonsimulations.HexMapGenerator;
 using com.hexagonsimulations.HexMapGenerator.Enums;
 using com.hexagonsimulations.HexMapGenerator.Interfaces;
 using com.hexagonsimulations.HexMapGenerator.Models;
 
-namespace com.hexagonsimulations.HexMapGenerator.Generators;
+namespace HexMapGenerator.Generators.Heightmap;
 
-internal class ContinentsIslandsGenerator : IMapTerrainGenerator
+internal class ContinentsIslandsGenerator : IMapHeightmapGenerator
 {
     private readonly float _factorLand = 0.7f;
     private readonly float _factorWater = 0.25f;
     private readonly float _factorMountain = 0.04f;
     private readonly float _factorHills = 0.08f;
 
-    public void Generate(MapData map)
+    public void GenerateHeightmap(MapData map)
+    {
+
+    }
+
+    /*public void Generate(MapData map)
     {
         // create empty grid
         List<Tile> grid = Enumerable.Repeat(new Tile(), map.Rows * map.Columns).ToList();
@@ -160,5 +166,5 @@ internal class ContinentsIslandsGenerator : IMapTerrainGenerator
         Utils.HillsToMountains(grid, map.Rows, map.Columns, mountainTiles);
 
         map.TerrainMap = Utils.ConvertGrid(grid);
-    }
+    }*/
 }

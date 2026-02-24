@@ -297,6 +297,8 @@ public class HeightmapGenerator
         }
 
         var blended = new double[width1, height1];
+        //var normalized1 = Normalize(heightmap1, height1, width1);
+        //var normalized2 = Normalize(heightmap2, height2, width2);
         double inverseFactor = 1.0 - factor;
 
         for (int y = 0; y < height1; y++)
@@ -304,10 +306,83 @@ public class HeightmapGenerator
             for (int x = 0; x < width1; x++)
             {
                 double value = (heightmap1[x, y] * factor) + (heightmap2[x, y] * inverseFactor);
-                blended[x, y] = Math.Max(0.0, Math.Min(1.0, value));
+                blended[x, y] = value;
             }
         }
 
         return blended;
+    }
+
+
+
+    private double[,] Normalize(double[,] heightmap, int height, int width)
+    {
+
+        // Normalize blended heightmap to 0.0-1.0 range
+        double minValue = double.MaxValue;
+        double maxValue = double.MinValue;
+
+        // Find min and max values
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                minValue = Math.Min(minValue, heightmap[x, y]);
+                maxValue = Math.Max(maxValue, heightmap[x, y]);
+            }
+        }
+
+        // Normalize to 0.0-1.0 range
+        double range = maxValue - minValue;
+        if (range > 0)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    heightmap[x, y] = (heightmap[x, y] - minValue) / range;
+                }
+            }
+        }
+        else
+        {
+            // If all values are the same, fill with 0.5
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    heightmap[x, y] = 0.5;
+                }
+            }
+        }
+
+        return heightmap;
+    }
+
+    /// <summary>
+    /// Clamps all values in a heightmap to the range [0.0, 1.0]
+    /// </summary>
+    /// <param name="heightmap">The heightmap to clamp</param>
+    /// <param name="height">Height of the heightmap</param>
+    /// <param name="width">Width of the heightmap</param>
+    /// <returns>The clamped heightmap</returns>
+    private double[,] Clamp(double[,] heightmap, int height, int width)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (heightmap[x, y] > 1.0)
+                {
+                    heightmap[x, y] = 1.0;
+                }
+                else if (heightmap[x, y] < 0.0)
+                {
+                    heightmap[x, y] = 0.0;
+                }
+            }
+        }
+
+        return heightmap;
     }
 }

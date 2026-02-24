@@ -10,6 +10,7 @@ public class Generator
 {
     private readonly int _riverbed = 3;
     private MapData _map = new();
+    private int seed = 0;
     internal static Random random = new();
 
     public Generator()
@@ -17,9 +18,10 @@ public class Generator
         // empty generator has no additional usage
     }
 
-    public Generator(Int32 seed)
+    public Generator(int seed = 0)
     {
         // initialize random number generator with provided seed
+        this.seed = seed;
         random = new Random(seed);
     }
 
@@ -33,6 +35,7 @@ public class Generator
     /// <param name="factorRiver">factor of rivers to create (factor * Map.Size)</param>
     public void GenerateMap(MapType type, MapSize size, MapTemperature temperature, MapHumidity humidity, float factorRiver)
     {
+        _map.Seed = seed;
         _map.Type = type;
         _map.Size = size;
         _map.Temperature = temperature;
@@ -41,42 +44,8 @@ public class Generator
         _map.Rows = mapSize.rows;
         _map.Columns = mapSize.columns;
 
-        IMapTerrainGenerator generator = new RandomGenerator();
+        IMapLandmassGenerator generator = new LandmassGenerator();
         IMapLandscapeShaper shaper = new DefaultShaper();
-
-        switch (type)
-        {
-            case MapType.ARCHIPELAGO:
-                generator = new ArchipelagoGenerator();
-                break;
-            case MapType.INLAND_SEA:
-                generator = new InlandSeaGenerator();
-                break;
-            case MapType.HIGHLAND:
-                generator = new HighlandGenerator();
-                break;
-            case MapType.ISLANDS:
-                generator = new IslandsGenerator();
-                break;
-            case MapType.SMALL_CONTINENTS:
-                generator = new SmallContinentsGenerator();
-                break;
-            case MapType.CONTINENTS:
-                generator = new ContinentsGenerator();
-                break;
-            case MapType.CONTINENTS_ISLANDS:
-                generator = new ContinentsIslandsGenerator();
-                break;
-            case MapType.SUPER_CONTINENT:
-                generator = new SuperContinentGenerator();
-                break;
-            case MapType.LAKES:
-                generator = new LakesGenerator();
-                break;
-            case MapType.RANDOM:
-                generator = new RandomGenerator();
-                break;
-        }
 
         // generate landmass and water
         generator.Generate(_map);

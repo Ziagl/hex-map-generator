@@ -1,18 +1,24 @@
 ﻿using com.hexagonsimulations.HexMapBase.Models;
+using com.hexagonsimulations.HexMapGenerator;
 using com.hexagonsimulations.HexMapGenerator.Enums;
 using com.hexagonsimulations.HexMapGenerator.Interfaces;
 using com.hexagonsimulations.HexMapGenerator.Models;
 
-namespace com.hexagonsimulations.HexMapGenerator.Generators;
+namespace HexMapGenerator.Generators.Heightmap;
 
-internal class ContinentsGenerator : IMapTerrainGenerator
+internal class SmallContinentsGenerator : IMapHeightmapGenerator
 {
     private readonly float _factorLand = 0.8f;
     private readonly float _factorWater = 0.15f;
     private readonly float _factorMountain = 0.04f;
     private readonly float _factorHills = 0.08f;
 
-    public void Generate(MapData map)
+    public void GenerateHeightmap(MapData map)
+    {
+
+    }
+
+    /*public void Generate(MapData map)
     {
         // create empty grid
         List<Tile> grid = Enumerable.Repeat(new Tile(), map.Rows * map.Columns).ToList();
@@ -22,7 +28,7 @@ internal class ContinentsGenerator : IMapTerrainGenerator
 
         // 2. add randomly continents
         int landTiles = (int)(grid.Count * this._factorLand);
-        int continentCounter = Generator.random.Next(2, 6); // number of continents
+        int continentCounter = Generator.random.Next(5, 10); // number of continents
         // set contintent seeds to the map with numbering MAXCONTINENTSEED - continentCounter
         Utils.AddRandomContinentSeed(grid, map.Rows, map.Columns, TerrainType.SHALLOW_WATER, continentCounter);
 
@@ -151,5 +157,5 @@ internal class ContinentsGenerator : IMapTerrainGenerator
         Utils.HillsToMountains(grid, map.Rows, map.Columns, mountainTiles);
 
         map.TerrainMap = Utils.ConvertGrid(grid);
-    }
+    }*/
 }
