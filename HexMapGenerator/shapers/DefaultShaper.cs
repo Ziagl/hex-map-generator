@@ -85,7 +85,7 @@ internal class DefaultShaper : IMapLandscapeShaper
         Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.SWAMP, affectedTerrain, swampTiles, swampDistribution);
 
         // generate FOREST tiles
-        affectedTerrain = new List<TerrainType>() { TerrainType.GRASS, TerrainType.PLAIN, TerrainType.TUNDRA, TerrainType.GRASS_HILLS, TerrainType.PLAIN_HILLS, TerrainType.TUNDRA_HILLS };
+        affectedTerrain = new List<TerrainType>() { TerrainType.GRASS, TerrainType.PLAIN, TerrainType.TUNDRA, TerrainType.SNOW, TerrainType.GRASS_HILLS, TerrainType.PLAIN_HILLS, TerrainType.TUNDRA_HILLS, TerrainType.SNOW_HILLS };
         defaultTiles = Utils.CountTiles(grid, affectedTerrain);
         int forestTiles = (int)(defaultTiles * _factorWood * 0.5 * (1.5 - 0.5 * (int)map.Humidity));
         var forestDistribution = new TileDistribution(0.05f, 0.5f, 0.05f, 0.4f);
