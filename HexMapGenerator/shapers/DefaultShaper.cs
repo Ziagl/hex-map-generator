@@ -9,10 +9,10 @@ internal class DefaultShaper : IMapLandscapeShaper
 {
     private readonly float _factorGrass = 0.5f;
     private readonly float _factorDesert = 0.07f;
-    private readonly float _factorReef = 0.05f;
     private readonly float _factorOasis = 0.05f;
     private readonly float _factorSwamp = 0.05f;
     private readonly float _factorWood = 0.3f;
+    private readonly float _factorStone = 0.5f;
 
     public void Generate(MapData map, float factorRiver, int riverBed)
     {
@@ -61,13 +61,6 @@ internal class DefaultShaper : IMapLandscapeShaper
         var desertDistribution = new TileDistribution(0.0f, 0.1f, 0.8f, 0.1f);
         Utils.AddRandomTerrain(grid, map.Rows, map.Columns, TerrainType.DESERT, TerrainType.DESERT_HILLS, desertTiles, desertDistribution);
 
-        // generate REEF tiles
-        affectedTerrain = new List<TerrainType>() { TerrainType.DEEP_WATER };
-        defaultTiles = Utils.CountTiles(grid, affectedTerrain);
-        int reefTiles = (int)(defaultTiles * _factorReef);
-        var reefDistribution = new TileDistribution(0.0f, 0.4f, 0.2f, 0.4f);
-        Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.REEF, affectedTerrain, reefTiles, reefDistribution);
-
         if (map.Temperature == MapTemperature.HOT)
         {
             affectedTerrain = new List<TerrainType>() { TerrainType.DESERT };
@@ -98,12 +91,12 @@ internal class DefaultShaper : IMapLandscapeShaper
         var jungleDistribution = new TileDistribution(0.0f, 0.0f, 0.2f, 0.8f);
         Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.JUNGLE, affectedTerrain, jungleTiles, jungleDistribution);
 
-        // generate VOLCANO tiles
-        affectedTerrain = new List<TerrainType>() { TerrainType.MOUNTAIN };
+        // generate STONE tiles
+        affectedTerrain = new List<TerrainType>() { TerrainType.GRASS_HILLS, TerrainType.PLAIN_HILLS, TerrainType.TUNDRA_HILLS, TerrainType.SNOW_HILLS };
         defaultTiles = Utils.CountTiles(grid, affectedTerrain);
-        int volcanoTiles = Generator.random.Next(0, Math.Min(10, (int)(defaultTiles / 10)));
-        var volcanoDistribution = new TileDistribution();
-        Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.VOLCANO, affectedTerrain, volcanoTiles, volcanoDistribution);
+        int stoneTiles = (int)(defaultTiles * _factorStone);
+        var stoneDistribution = new TileDistribution(0.25f, 0.25f, 0.25f, 0.25f);
+        Utils.AddRandomLandscape(grid, map.Rows, map.Columns, LandscapeType.STONE, affectedTerrain, stoneTiles, stoneDistribution);
 
         // add landscape and river to map
         List<int> landscapeTiles = new();

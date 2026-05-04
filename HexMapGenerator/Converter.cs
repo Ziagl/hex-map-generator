@@ -61,7 +61,7 @@ public class Converter
                         {
                             if (data[x] == 1)
                             {
-                                data[x] += (int)TerrainType.MOUNTAIN + (int)LandscapeType.VOLCANO;
+                                data[x] += (int)TerrainType.MOUNTAIN;
                             }
                         }
                     }
